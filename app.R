@@ -25,8 +25,6 @@ library(viridis)
 library(dplyr)
 library(scales)
 library(philentropy)
-# library(HistogramTools)  # archived from CRAN; not used in app
-#library(DescToolo)
 library(fastICA)
 library(tiff)
 library(datasets)
@@ -75,7 +73,6 @@ tags$style(HTML("
 tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")),
 
 
-  
   tags$div(
     id = "title",
     tags$h1(id = "tool_name", "Randk\\uft", style = "color:navy;"),
@@ -117,14 +114,11 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
                                                  ),
 
 
-
-
                           #  fluidRow(column(
                           #    width = 8,  fileInput("cell_file", label = "Cell-Marker File")
                           #  ),
 
                            fluidRow(
-                            # tags$style(".shiny-file-input-progress {display: none}"),
                               column(width = 8, 
                                     div(id = "file_input_div", 
                                         fileInput("cell_file", label = "Upload a CSV file", accept = ".csv", buttonLabel = "Browse"))),
@@ -136,62 +130,6 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
 
                          ),
                          
-                         ##COMMENTED OUT THE PRE_Randkluft COMPLETELY
-
-                        #  tabPanel(strong("Pre-Randkluft"),
-                        #  value=2,
-                        #  tabsetPanel(id="sidebar1",
-                        #  tabPanel(value=1,
-                        #  strong("Remove Cells"),
-                        #  br(),
-                        #     radioButtons(
-                        #       "patient_number_im_gargage",
-                        #       "Select Patients",
-                        #       choices = character(0),
-                        #       selected = character(0)
-                        #     ),
-                        #     hr(),
-                        #      radioButtons(
-                        #       "precrev_marker",
-                        #       "Select Marker",
-                        #       choices = character(0),
-                        #       selected = character(0)
-                        #     ),
-                        #     sliderInput("opacity_slider", "Marker Opacity", min = 0.25, max = 1, value = 0.5, step = 0.25, ticks=FALSE),
-                        #     # Add a button to capture the subset
-                        #     # actionButton("RetainSubset", "Retain"),
-                        #     # actionButton("RemoveSubset", "Remove"),
-                        #     actionButton("RetrySubset", "Retry"),
-                        #     # actionButton("SaveSubset", "Save"),
-                        #     actionButton("UseSubset", "Use")
-                        #  ),
-                        # 
-                        # 
-                        # tabPanel(value=2,
-                        #  strong("Tissue Scoring"),
-                        #  br(),
-                        #     radioButtons(
-                        #       "patients_ts",
-                        #       "Select Patients",
-                        #       choices = character(0),
-                        #       selected = character(0)
-                        #     ),
-                        # radioButtons(
-                        #       "cycle_ts",
-                        #       "Select Cycle",
-                        #       choices = character(0),
-                        #       selected = character(0)
-                        #     ),
-                        #     hr(),
-                        #   actionButton("acceptChangesQC", "Accept Changes")
-                        # 
-                        #  )
-                        # 
-                        # 
-                        #  )
-                        # ),
-
-                          
 
                          tabPanel(strong("Randkluft"),
                           value=3,
@@ -217,7 +155,6 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
                            checkboxGroupInput("unique_patients_gating", "Select Patients", choices = NULL, selected = NULL),
 
 
-
                                                                              br(),
 
 
@@ -227,14 +164,7 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
                                                                        right=TRUE,
                                                                        value = FALSE ),
 
-                            # materialSwitch(inputId = "GMM_gate_on_off", 
-                            #                                            label = "GMM",
-                            #                                            status = "success",
-                            #                                            right=TRUE,
-                            #                                            value = FALSE ),
 
-
-                           
                           # Add the progress bar div element here
                            tags$div(id = "message", style = "font-size: 20px; position: fixed; bottom: 0; right: calc(5% + 10px);"),
                            tags$div(id = "message_gen_hist", style = "font-size: 20px; position: fixed; bottom: 0; right: calc(5% + 10px);"),
@@ -249,9 +179,6 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
                           p('Click button to download pdf file of plots for all selected markers and patients.'),
                           downloadButton(outputId = "downloadall", label = "Download All Plots")
 
-                          # p('Click button to download pdf file of plots for all selected markers and patients.'),
-                          # downloadButton(outputId = "downloadPDF_4panel", label = "Download 4 Panel")
-
 
                              ), 
                              
@@ -264,12 +191,7 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
                            
                              varSelectInput("xvar", "X variable", NULL, selected = NULL),
                              varSelectInput("yvar", "Y variable", NULL, selected = NULL),
-                            #  checkboxGroupInput(
-                            #   "patient_number_plot2",
-                            #   "Select unique patients",
-                            #   choices = NULL,
-                            #   selected = NULL
-                            # ),
+
                             radioButtons(
                               "patient_number_plot2",
                               "Select Patients",
@@ -277,11 +199,6 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
                               selected = character(0)
                             ),
                              hr(),
-                             # Add a horizontal rule
-                            #  checkboxInput("by_species", "Show individuals", TRUE),
-                            #  checkboxInput("show_margins", "Show marginal plots", TRUE),
-                            #  checkboxInput("smooth", "Add smoother"),
-                           
                          ),
 
                             tabPanel(
@@ -294,12 +211,7 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
                              varSelectInput("yvarTri", "Y variable", NULL, selected = NULL),
                             varSelectInput("zvar", "Z variable", NULL, selected = NULL),
 
-                            #  checkboxGroupInput(
-                            #   "patient_number_plot2",
-                            #   "Select unique patients",
-                            #   choices = NULL,
-                            #   selected = NULL
-                            # ),
+
                             radioButtons(
                               "trivar_patient",
                               "Select Patients",
@@ -307,11 +219,6 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
                               selected = character(0)
                             ),
                              hr(),
-                             # Add a horizontal rule
-                            #  checkboxInput("by_species", "Show individuals", TRUE),
-                            #  checkboxInput("show_margins", "Show marginal plots", TRUE),
-                            #  checkboxInput("smooth", "Add smoother"),
-                           
                          )
                              )
 
@@ -334,7 +241,6 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
                                                  ),
 
                            fluidRow(
-                            # tags$style(".shiny-file-input-progress {display: none}"),
                               column(width = 8, 
                                     div(id = "file_input_div2", 
                                         fileInput("phen_wfl", label = "Upload a CSV file", accept = ".csv", buttonLabel = "Browse"))),
@@ -344,23 +250,10 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
                             ),
                             
 
-                        #  # Marker selection input
-                        #   textInput("phenotype_name", "Phenotype Name"),
-                          # checkboxGroupInput("selected_columns_phenotyping", "Select Markers", choices = NULL, selected = NULL),
-                          
-                          # checkboxInput("marker_positive", "Is it a Positive Marker?"),
-                          # actionButton("add_marker", "Add Marker"),
-                          # actionButton("define_phenotype", "Define Phenotype"),
                           actionButton("define_phenotype_AUTO", "Phenotype my data"),
                           br(),
                           br(),
-                          # p('Click button to download a .csv  file with the phenotypes'),
-                          # downloadButton(outputId = "downloadPhenotypes", label = "Download Phenotype"),
-                          # downloadButton(outputId = "downloadPhenotypeTable", label = "Download Workflow"),
-                          # br(),
-                          # checkboxGroupInput("selected_columns_phenotyping", "Select Markers", choices = NULL, selected = NULL)
-                          # checkboxGroupInput("selected_columns_phenotyping", "Select Markers"),
-                          # tags$div(id = "updateProgressPhenotypePost", style = "font-size: 20px; position: fixed; bottom: 0; right: calc(5% + 10px);"),
+
                           uiOutput("marker_checkboxes"),
                           materialSwitch(inputId = "any_indicator", 
                                                             label = "Any positive",
@@ -378,39 +271,10 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
                           br(),
 
 
-
-
-                          #  # Checkbox group for marker selection with individual material switches
-                          #         fluidRow(
-                          #           # tags$style(".shiny-file-input-progress {display: none}"),
-                          #           column(width = 8,
-                          #             checkboxGroupInput("selected_columns_phenotyping", "Select Markers", choices = NULL, selected = NULL)
-                          #           ),
-                          #           column(width = 4,
-                          #             # Generate three material switches dynamically
-                          #             lapply(reactive({ seq_along(input$selected_columns_phenotyping) }), function(i) {
-                          #               materialSwitch(
-                          #                 inputId = paste0("pos_neg_switch_", i),
-                          #                 label = "- / +",
-                          #                 status = "danger",
-                          #                 right = TRUE,
-                          #                 value = FALSE
-                          #               )
-                          #             })
-                          #           )
-                          #         )
                         )
 
                         
-                  
-
-                        
-
-
-
-
                         )
-                        
                         
                         
                         ),
@@ -427,7 +291,6 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
               numericInput('intercept', 'Type Gate Value', value = ""),
               actionButton(inputId = "updateGates", label = "Update Gate"),
                
-
 
               conditionalPanel(
                 condition = "input.intercept == ''",
@@ -461,9 +324,6 @@ div(
   class = "pagination-button-back",
   actionButton(inputId = "prevMarker", label = "Previous Marker ", icon("arrow-left"))
 )
-
-
-        
 
 
       ),
@@ -522,7 +382,6 @@ div(
               verbatimTextOutput("post_statistics"),
 
             
-
       # tableOutput("phenotypeTable")# Add your table output here
 
       ), 
@@ -540,17 +399,10 @@ div(
       ), 
 
 
-      # conditionalPanel(
-      #   condition = "input.sidebartab == 1",
-      #   verbatimTextOutput("sum")
-      # ), 
-
-  
     ),
                      
   
         )
-        
         
         
         )
@@ -631,14 +483,6 @@ server <- shinyServer(function(input, output, session) {
   target <- target[target >= low_threshold & target <= high_threshold]
   return(target) }
 
-    #  # Define a function to find the mode of a vector
-    #   find_mode <- function(x) {
-    #     ux <- unique(x)
-    #     ux[which.max(tabulate(match(x, ux)))]
-    #   }
-
-    
-     # Define a function to find the mode of a vector
       find_mode2 <- function(x) {
         ux <- unique(x)
         ux[which.max(tabulate(match(x, ux)))]
@@ -767,10 +611,6 @@ observeEvent(input$updateGates, {
 })
 
 
-
-
-
-
 plot_gating_grid_pdf_all = function(df, unique_ids, column_names) {
   plot_list = list()
 
@@ -795,16 +635,10 @@ plot_gating_grid_pdf_all = function(df, unique_ids, column_names) {
     target <- df[df$imageid == unique_id, j]
 
 
-
-
     target <- remove_outliers2(target)
 
 
-  
-
     target <- target[!is.infinite(target)]
-
-    # print(target)
 
     marker <- paste0(c(unique_id, names_columns[j]), collapse = "; ")
     output <- skew_gate(target, 0.01)
@@ -854,7 +688,6 @@ plot_gating_grid_pdf_all = function(df, unique_ids, column_names) {
     iteration <- 0
     
     while (abs(sk) > alpha & iteration <= 100) {
-      # print(iteration)
       if (sk >= 0) {
         b <- a + (b - a) / 2
       } else {
@@ -887,10 +720,6 @@ plot_gating_grid_pdf_all = function(df, unique_ids, column_names) {
   }
 
   
-
-
-
-
   get_gates_csv <- function(dataframe, csv_save_file_path) {
 
 
@@ -948,8 +777,6 @@ progress$close()
 return(results_df)
 
 
-
-
   }
 
   get_gates_csv_single <- function(dataframe, csv_save_file_path) {
@@ -964,8 +791,6 @@ return(results_df)
 
 
   data <- dataframe # Replace with your actual CSV file path
-
-
 
 
   # List of markers
@@ -992,8 +817,6 @@ return(results_df)
       subset_data <- data[data$imageid == imageid, c("imageid", marker)]
 
     
-
-  
       # Calculate gate value using skew_gate function
       result_to_plot <- skew_gate(subset_data[[marker]])  # Replace with your desired alpha
       skewness_value <- result_to_plot$skewness
@@ -1006,19 +829,12 @@ return(results_df)
     }}
 
 
-
-
   return(results_df)
 
 
   }
   
   
-
-  #shinyjs::hide("GMM_gate_on_off")
-
-
-
   shinyjs::hide("patient_number")
   
   observe({
@@ -1072,7 +888,6 @@ return(results_df)
   columns_to_exclude <- c(columns_to_exclude, exclude_columns2)
 
 
-
     # Select all column names except the ones to exclude
     column_names <- setdiff(names(uploaded_df()), columns_to_exclude)
     reactive_markers_selected(column_names)
@@ -1082,12 +897,6 @@ return(results_df)
     updateCheckboxGroupInput(session, "selected_columns_phenotyping", choices = column_names, selected = column_names)
     updateCheckboxGroupInput(session, "unique_patients_gating", choices = unique_patients(), selected = unique_patients())
 
-
-
-
-
-
-    
 
     runjs("document.getElementById('message_loading_data').style.display = 'none';")
 
@@ -1128,14 +937,10 @@ return(results_df)
     shinyjs::hide("selected_columns")
     shinyjs::hide("unique_patients_gating")
 
-    # shinyjs::hide("marker")
-    # shinyjs::hide("xvar")
-    # shinyjs::hide("yvar")
     shinyjs::hide("gated_histogram_on_page")
     shinyjs::hide("patient_number")
     shinyjs::hide("patient_number_plot2")
     shinyjs::hide("histogram_plot")
-    # shinyjs::hide("plot2")
     shinyjs::reset("patient_number_plot2")
 
     shinyjs::hide("summary_output")
@@ -1143,41 +948,12 @@ return(results_df)
     shinyjs::hide("selected_columns_phenotyping")
 
   
-
-    
-
-    # shinyjs::toggleState(id = "gen_hist_plots_on_off")  # Toggle the switch
-
-    # output$plot2 <- NULL 
-
-    # Clear the select inputs and update their choices
-
-
     updateSelectInput(session, "yvar", choices = character(0), selected = character(0))
     updateSelectInput(session, "xvar", choices = character(0), selected = character(0))
     updateSelectInput(session, "marker", choices = character(0), selected = character(0))
 
 
-
   })
-
-  #  # This button will reset the inFileLoad
-  # observeEvent(input$image_garage, {
-    
-  #   req(uploaded_df())
-
-  #   print(colnames(uploaded_df()))
-
-
-
-  # })
-
-  # Define a function to check if any numerical column has values greater than 20
-# check_if_logged <- function(df) {
-#   numeric_cols <- sapply(df, is.numeric)
-#   max_value <- max(df[numeric_cols])
-#   return(max_value > 20)
-# }
 
 check_if_logged <- function(data) {
   max_vals <- sapply(data, max, na.rm = TRUE)
@@ -1193,26 +969,11 @@ sub_data_logged <- reactiveVal(NULL)
     seq_length = seq_length[-length(seq_length)]
   
     
-    #read the first line
-    
-    
-    
-    # Generate a sample of 10 numbers from 1 to 20 without replacement
-    #sample_numbers <- sample(1:nrows, 10000, replace = FALSE)
-    # Create the SQL query string
-    #query <- sprintf("SELECT * FROM file WHERE CellID IN (%s)", paste(sample_numbers, collapse = ", ")) #the first row should be called CellID
-    #df <- read.csv.sql(file_path, sql = query, dbname = tempfile())
-    
-    #col_names = colnames(df)
-
     for(i in seq_along(seq_length)){
       progress$set(value = i)
       if(i == no_batches) chunk_size = -1 else chunk_size = seq_length[i+1] - seq_length[i]
 
-      # df_temp = read.csv(file_path, skip = seq_length[i], nrows = chunk_size, header = FALSE, stringsAsFactors = FALSE)
       df_temp = read.csv.sql(file_path, sql = query, dbname = tempfile())
-       # read.csv(file_path, skip = seq_length[i], nrows = chunk_size, header = TRUE, check.names=FALSE)
-
       colnames(df_temp) = col_names
       df = rbind(df,df_temp)
     }
@@ -1222,29 +983,8 @@ sub_data_logged <- reactiveVal(NULL)
   }
 
 
-  # observe({
-  #   output$sum <- renderPrint({
-  #     print(head(df(), 10))
-  #   }) 
-  # }) 
-
-  
-
-  # Event handler for the button click to read the uploaded CSV file
   observeEvent(input$cell_file, {
-    # runjs("
-    #   function animateDots() {
-    #     var messageDiv = document.getElementById('message_loading_data');
-    #     var dots = '';
-    #     setInterval(function() {
-    #       if (dots.length === 3) dots = '';
-    #       else dots += '.';
-    #       messageDiv.innerText = 'Loading Data' + dots;
-    #     }, 500);
-    #   }
-    #   animateDots();
-    #   document.getElementById('message_loading_data').style.display = 'block';
-    # ")
+
 
     n_rows = length(count.fields(input$cell_file$datapath))
     
@@ -1259,7 +999,6 @@ sub_data_logged <- reactiveVal(NULL)
     uploaded_df(read.csv.sql(input$cell_file$datapath, sql = query, dbname = tempfile()))
     
     
-
     # uploaded_df(read.csv(input$cell_file$datapath, header = TRUE, check.names=FALSE))
 
     # uploaded_df(read(input$cell_file$datapath))
@@ -1297,22 +1036,9 @@ sub_data_logged <- reactiveVal(NULL)
     # Define the column names you want to exclude
     columns_to_exclude <- c("imageid", "phenotype", "ROI_major_category", "CellID", "X", "Y", "ROI_minor_category", "phenotype_v2", "X_centroid", "Y_centroid", "Eccentricity", "Area", "MajorAxisLength",
     "MinorAxisLength", "Extent", "Solidity", "Orientation", "", "DNA6a")  # List the columns to exclude
-    # Select all column names except the ones to exclude
-
-    # # Define the regular expression pattern to identify columns to be excluded
-    # exclude_pattern <- "DNA|DAPI"
-
-    # # Use grep to get the column names matching the pattern
-    # exclude_columns <- grep(exclude_pattern, colnames(uploaded_df()), value = TRUE, ignore.case = TRUE)
-
-    # Add the excluded columns to the original 'columns_to_exclude' vector
-    # columns_to_exclude <- c(columns_to_exclude, exclude_columns)
-
-
     column_names <- setdiff(names(uploaded_df()), columns_to_exclude)
 
     print(column_names)
-
 
 
     print("pre")
@@ -1320,7 +1046,6 @@ sub_data_logged <- reactiveVal(NULL)
     print("post")
 
   
-
     uploaded_intermediate <- uploaded_df()
     uploaded_intermediate[column_names] <- sapply(uploaded_intermediate[column_names], as.numeric)
     uploaded_intermediate[column_names] <- data.frame(lapply(uploaded_intermediate[column_names], function(x) ifelse(x >= 0 & x < 10, 10, x)))
@@ -1336,18 +1061,10 @@ sub_data_logged <- reactiveVal(NULL)
       print("crash")
       
 
-        #uploaded_intermediate <- uploaded_df()
-      # Assuming uploaded_df() is your uploaded dataframe
-
       if (!"imageid" %in% colnames(uploaded_df())) {
         uploaded_intermediate$imageid <- rep("image", nrow(uploaded_df()))
         uploaded_df(uploaded_intermediate)
       }
-      # #removing random rows based on the size of the file more than 10 megab
-      #  if (object.size(uploaded_intermediate)/1024/1024 > 10) {
-      #    #sample_size<- round(dim(uploaded_df(uploaded_intermediate))[1] * (10/object.size(uploaded_df(uploaded_intermediate))/1024/1024))
-      #    uploaded_df(uploaded_intermediate[sample(dim(uploaded_intermediate)[1], 400000), ])
-      #  }
       if (any(c("DNA1", "DNA_1", "DAPI1", "DAPI_1", "Hoechst1", "Hoechst_1") %in% colnames(uploaded_df()))) {
         uploaded_intermediate$DNA1 <- rep(1, nrow(uploaded_df()))
         uploaded_df(uploaded_intermediate)
@@ -1365,20 +1082,13 @@ sub_data_logged <- reactiveVal(NULL)
         }
 
      
-      
-
           print("DONE LOADING CSV FINAL after POST")
 
 
           print(colnames(uploaded_df()))
 
-          #print(uploaded_df()$ELANE)
-
-
     showNotification("File Ready for Use", duration = 10, id = "message")
 
-
-     
 
     # Show the checkboxGroupInput
     shinyjs::show("selected_columns")
@@ -1386,18 +1096,12 @@ sub_data_logged <- reactiveVal(NULL)
         shinyjs::show("selected_columns_phenotyping")
 
 
-
-
   })
   
-
-
-
 
   pdf_file_path <- reactiveVal(NULL)
   csv_save_file_path <- reactiveVal(NULL)
   resultdf_reactive <- reactiveVal(NULL)
-
 
 
   observeEvent(input$run_gate, {
@@ -1434,23 +1138,6 @@ sub_data_logged <- reactiveVal(NULL)
     # Show the progress bar
     
     
-    #  runjs("
-    #   function animateDots() {
-    #     var messageDiv = document.getElementById('message');
-    #     var dots = '';
-    #     setInterval(function() {
-    #       if (dots.length === 3) dots = '';
-    #       else dots += '.';
-    #       messageDiv.innerText = 'Randkluft in Action' + dots;
-    #     }, 500);
-    #   }
-    #   animateDots();
-    #   document.getElementById('message').style.display = 'block';
-    # ")
-
-
-  
-   
     if (length(selected_columns)==1){
       print("hi")
       print(colnames(sub_data))
@@ -1465,14 +1152,6 @@ sub_data_logged <- reactiveVal(NULL)
     print(resultdf_to_save)
     
     csv_save_file_path(resultdf_to_save)
-
-    # showNotification("Randkluft Found", duration = 1, id = "message")
-
-    # Clear the message
-    # runjs("document.getElementById('message').style.display = 'none';")
-    # runjs("document.getElementById('message').style.display = 'none';")
-
-      # Hide the progress bar when the task is complete
 
       dataframe_pos <- uploaded_df()
 
@@ -1553,7 +1232,6 @@ observeEvent(input$prevPatient, {
 })
 
 
-
   current_patient(ifelse(current_patient() == 1, length(unique_patients_gating()), current_patient() - 1))
 })
 
@@ -1578,7 +1256,6 @@ observeEvent(input$prevMarker, {
       observe({
   updateNumericInput(session, "intercept", value = '')
 })
-
 
 
   current_marker(ifelse(current_marker() == 1, length(selected_columns()), current_marker() - 1))
@@ -1665,7 +1342,6 @@ observeEvent(input$prevMarker, {
     filter(imageid %in% selected_patients_man[current_patient()]) 
     
  
-
 chosen_patient <- selected_patients_man[current_patient()]
 chosen_marker <- selected_columns_man[current_marker()]
 digrepresentation <- ggplot(filtered_data_xy, aes(x = X_centroid, y = Y_centroid, color = filtered_data_xy[[chosen_marker]])) +
@@ -1886,214 +1562,6 @@ generate_four_panel_plot <- function(data, patient_id, marker) {
 }
 
 
-
-
-# # Create a reactive value to store histograms and gate values
-
-# # Function to generate the PDF with histograms
-# generate_histogram_pdf <- function(subdata_to_plot, pdf_file_name) {
-
-#   data <- subdata_to_plot
-
-#   print('colnames of subdata hist here')
-
-#   print(colnames(data))
-#   # List of markers
-#   markers <- colnames(data)[-1]
-#   print(markers)
-
-#   # Create a list to store ggplot objects
-#   histogram_list <- list()
-
-#   # Loop over unique imageids
-#   unique_imageids <- unique(data$imageid)
-#   print(unique_imageids)
-#   for (imageid in unique_imageids) {
-#     print(imageid)
-#     for (marker in markers) {
-#       # Subset data for the current imageid and marker
-#       # subset_data <- data[data$imageid == imageid, c("imageid", marker)]
-#       print(marker)
-
-
-#     # Get the index of the column
-#     col_index <- which(names(data) == marker)
-
-      
-#     #     unique_id <- unique(df$imageid)[current_patient()]
-#     #     column_index <- column_indices[current_marker()]
-#     # histogram_plot <- plot_gating_grid(df, unique_id, column_index)
-
-#       histogram <- plot_gating_grid(data, imageid, col_index)
-#       # Store the histogram plot in the list
-#       histogram_list[[paste(imageid, marker)]] <- histogram
-
-#     }
-
-      
-#       # # Store the histogram plot in the list
-#       # histogram_list[[paste(imageid, marker)]] <- histogram
-#     }
-  
-
-#   # Arrange and save histograms across multiple pages
-#   pdf_file <- pdf_file_name
-#   pdf(file = pdf_file, width = 14, height = 10)
-#   histogram_count <- length(histogram_list)
-#   histograms_per_page <- 6
-#   pages <- ceiling(histogram_count / histograms_per_page)
-
-#   for (page in 1:pages) {
-#     start_idx <- (page - 1) * histograms_per_page + 1
-#     end_idx <- min(page * histograms_per_page, histogram_count)
-#     page_histograms <- histogram_list[start_idx:end_idx]
-    
-#     do.call(grid.arrange, c(page_histograms, ncol = 3))
-#     if (page < pages) {
-#       cat("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")  # Add page breaks
-#     }
-#   }
-#   dev.off()
-#   pdf_file_path(pdf_file)
-
-#   }
-
-# generate_histogram_pdf <- function(subdata_to_plot, pdf_file_name) {
-#   data <- subdata_to_plot
-  
-#   # Create a list to store ggplot objects (four-panel plots)
-#   four_panel_plot_list <- list()
-  
-#   # Loop over unique imageids and markers
-#   unique_imageids <- unique(data$imageid)
-#   markers <- colnames(data)[-1]
-  
-#   for (imageid in unique_imageids) {
-#     for (marker in markers) {
-#       # Generate the four-panel plot for each combination of imageid and marker
-#       four_panel_plot <- generate_four_panel_plot(data, imageid, marker)
-      
-#       # Store the four-panel plot in the list
-#       four_panel_plot_list[[paste(imageid, marker)]] <- four_panel_plot
-#     }
-#   }
-  
-#   # Arrange and save four-panel plots across multiple pages in the PDF
-#   pdf_file <- pdf_file_name
-#   pdf(file = pdf_file, width = 14, height = 10)
-  
-#   # Number of four-panel plots and plots per page
-#   plot_count <- length(four_panel_plot_list)
-#   plots_per_page <- 6
-#   pages <- ceiling(plot_count / plots_per_page)
-  
-#   for (page in 1:pages) {
-#     start_idx <- (page - 1) * plots_per_page + 1
-#     end_idx <- min(page * plots_per_page, plot_count)
-#     page_plots <- four_panel_plot_list[start_idx:end_idx]
-    
-#     # Modify the arrangement logic here to display the plots properly in the PDF
-#     # Example: do.call(grid.arrange, c(page_plots, ncol = 3))
-    
-#     if (page < pages) {
-#       cat("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")  # Add page breaks
-#     }
-#   }
-  
-#   dev.off()
-#   pdf_file_path(pdf_file)
-# }
-
-# generate_histogram_pdf <- function(subdata_to_plot, pdf_file_name) {
-#   data <- subdata_to_plot
-  
-#   # Create a list to store ggplot objects (four-panel plots)
-#   four_panel_plot_list <- list()
-  
-#   # Loop over unique imageids and markers
-#   unique_imageids <- unique(data$imageid)
-#   markers <- colnames(data)[-1]
-  
-#   for (imageid in unique_imageids) {
-#     for (marker in markers) {
-#       # Generate the four-panel plot for each combination of imageid and marker
-#       four_panel_plot <- generate_four_panel_plot(data, imageid, marker)
-      
-#       # Store the four-panel plot in the list
-#       four_panel_plot_list[[paste(imageid, marker)]] <- four_panel_plot
-#     }
-#   }
-  
-#   # Arrange and save four-panel plots across multiple pages in the PDF
-#   pdf_file <- pdf_file_name
-#   pdf(file = pdf_file, width = 14, height = 10)
-  
-#   # Number of four-panel plots and plots per page
-#   plot_count <- length(four_panel_plot_list)
-#   plots_per_page <- 4  # Set to 4 for four plots per page
-#   pages <- ceiling(plot_count / plots_per_page)
-  
-#   for (page in 1:pages) {
-#     start_idx <- (page - 1) * plots_per_page + 1
-#     end_idx <- min(page * plots_per_page, plot_count)
-#     page_plots <- four_panel_plot_list[start_idx:end_idx]
-    
-#     # Arrange plots in a 2x2 grid on each page
-#     do.call(grid.arrange, c(page_plots))
-#     # do.call(grid.arrange, c(page_plots, nrow = 2, ncol = 2))
-
-    
-#     if (page < pages) {
-#       cat("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")  # Add page breaks
-#     }
-#   }
-  
-#   dev.off()
-#   pdf_file_path(pdf_file)
-# }
-
-# generate_histogram_pdf <- function(subdata_to_plot, pdf_file_name) {
-#   data <- subdata_to_plot
-  
-#   # Create a list to store ggplot objects (four-panel plots)
-#   four_panel_plot_list <- list()
-  
-#   # Loop over unique imageids and markers
-#   unique_imageids <- unique(data$imageid)
-#   markers <- colnames(data)[-1]
-  
-#   for (imageid in unique_imageids) {
-#     for (marker in markers) {
-#       # Generate the four-panel plot for each combination of imageid and marker
-#       four_panel_plot <- generate_four_panel_plot(data, imageid, marker)
-      
-#       # Store the four-panel plot in the list
-#       four_panel_plot_list[[paste(imageid, marker)]] <- four_panel_plot
-#     }
-#   }
-  
-#   # Arrange and save four-panel plots across multiple pages in the PDF
-#   pdf_file <- pdf_file_name
-#   pdf(file = pdf_file, width = 14, height = 10)
-  
-#   # Number of four-panel plots
-#   plot_count <- length(four_panel_plot_list)
-  
-#   for (page in 1:plot_count) {
-#     page_plot <- four_panel_plot_list[[page]]
-    
-#     # Display one plot per page
-#     print(page_plot)
-    
-#     if (page < plot_count) {
-#       cat("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")  # Add page breaks
-#     }
-#   }
-  
-#   dev.off()
-#   pdf_file_path(pdf_file)
-# }
-
 generate_histogram_pdf <- function(subdata_to_plot, pdf_file_name) {
   # Transplanted from Crevasse, updated for R 4.6.0:
   # - tryCatch per plot so one bad marker does not abort the whole PDF
@@ -2145,184 +1613,6 @@ generate_histogram_pdf <- function(subdata_to_plot, pdf_file_name) {
 }
 
 
-
-
-# library(gridExtra)
-
-# generatePlot <- function() {
-#   # Add your previous code here to setup and prepare the required data
-#   # ...
-
-#   # Initialize a list to store the plots for all combinations of columns and patients
-#   all_plots <- list()
-
-#   for (i in seq_along(input$selected_columns)) {
-#     for (j in seq_along(input$unique_patients_gating)) {
-#       # Your existing logic for generating individual plots for each selected column and patient here...
-#       # ... (Your existing logic for generating plots here)
-      
-#       # Store each plot in the all_plots list
-#       all_plots[[length(all_plots) + 1]] <- grid.arrange(
-#         histogram_plot, overlay_plot2, digrepresentation, contour_plot,
-#         ncol = 2, main = paste("Plots for", input$selected_columns[i], "and", input$unique_patients_gating[j])
-#       )
-#     }
-#   }
-
-#   # Combine all plots into a single grid
-#   combined_plots <- do.call(grid.arrange, c(all_plots, ncol = 2))
-
-#   # Save the combined plots into a PDF file
-#   output$downloadcurrent = downloadHandler(
-#     filename = function() { "combined_plots.pdf" },
-#     content = function(file) { 
-#       pdf(file)
-#       print(combined_plots)
-#       dev.off()
-#     }
-#   )
-# }
-
-
-# output$icaAnalysis <- renderPlot({
-#   # Assuming 'uploaded_df()' is your dataframe
-
-#   # Select numeric columns for ICA
-#   numeric_data <- uploaded_df()[sapply(uploaded_df(), is.numeric)]
-
-#   # Apply FastICA
-#   ica_result <- fastICA(numeric_data, n.comp = 5)  # Adjust the number of components as needed
-
-#   # Extract the independent components
-#   independent_components <- ica_result$S
-
-# #   # Generate a plot for the independent components
-# #   plot_ica <- plot(independent_components, type = "l")  # Adjust the plot type as per your preference
-
-# #   plot_ica
-# # })
-
-
-# output$icaAnalysis <- renderPlot({
-#   # Assuming 'uploaded_df()' is your dataframe
-
-#   # Select numeric columns for ICA
-#   numeric_data <- uploaded_df()[sapply(uploaded_df(), is.numeric)]
-
-#   # # Replace infinite values with NA
-#   # numeric_data[is.infinite(numeric_data)] <- NA
-
-#   # Replace missing values with column means
-#   # numeric_data[is.na(numeric_data)] <- colMeans(numeric_data, na.rm = TRUE)
-
-#   numeric_data <- numeric_data[!is.infinite(numeric_data)]
-
-
-#   # Apply FastICA
-#   ica_result <- fastICA(numeric_data, n.comp = 5)  # Adjust the number of components as needed
-
-#   # Extract the independent components
-#   independent_components <- ica_result$S
-
-#   # Generate a plot for the independent components
-#   plot_ica <- plot(independent_components, type = "l")  # Adjust the plot type as per your preference
-
-#   plot_ica
-# })
-
-# output$icaAnalysis <- renderPlot({
-#   # Assuming 'uploaded_df()' is your dataframe
-
-#   # Select numeric columns for ICA
-#   numeric_data <- uploaded_df()[sapply(uploaded_df(), is.numeric)]
-
-#   # Replace infinite values with NA
-#   numeric_data[is.infinite(numeric_data)] <- NA
-
-#   # Replace missing values with column means
-#   numeric_data[is.na(numeric_data)] <- colMeans(numeric_data, na.rm = TRUE)
-
-#   # Convert numeric data to a matrix
-#   numeric_matrix <- as.matrix(numeric_data)
-
-#   # Apply FastICA
-#   ica_result <- fastICA(numeric_matrix, n.comp = 5)  # Adjust the number of components as needed
-
-#   # Extract the independent components
-#   independent_components <- ica_result$S
-
-#   # Generate a plot for the independent components
-#   plot_ica <- plot(independent_components, type = "l")  # Adjust the plot type as per your preference
-
-#   plot_ica
-# })
-
-# Load TIFF file (replace "your_file.tiff" with your TIFF file path)
-#   tiff_data <- readTIFF("wsi_t.tif")
-
-  # # Display TIFF image in the plotOutput
-  # output$icaAnalysis <- renderPlot({
-  #     # Perform UMAP dimensionality reduction
-  #     umap_result <- umap(iris[, -5])  # Exclude the species column for UMAP
-  #     print(umap_result)
-  #     print(head(iris))
-
-  #     # Add UMAP results back to the dataset
-  #     iris_with_umap <- cbind(iris, umap_result$layout)
-
-  #     print(iris_with_umap)
-
-  #     # Plotting UMAP results
-  #     ggplot(iris_with_umap, aes(x = iris_with_umap[['1']], y = iris_with_umap[['2']], color = Species)) +
-  #       geom_point() +
-  #       labs(title = "UMAP Plot of Iris Dataset")
-  # })
-
-
-  # # # Display TIFF image in the plotOutput
-  # output$icaAnalysis <- renderPlot({
-
-  #   req(uploaded_df())
-  #   colnames(uploaded_df())
-  #   # Define the column names you want to exclude
-  #   columns_to_exclude <- c("imageid", "phenotype", "ROI_major_category", "CellID", "X", "Y", "DNA1", "DNA3", "DNA2", "Hoechst"
-  #   , "DAPI1", "DAPI2", "DNA13", "ROI_minor_category", "phenotype_v2", "X_centroid", "Y_centroid", "Eccentricity", "Area", "MajorAxisLength",
-  #   "MinorAxisLength", "Extent", "Solidity", "Orientation", "DNA_6", "DNA_7", "DNA_8", "DNA_9", "")  # List the columns to exclude
-  #   # Select all column names except the ones to exclude
-  #   # Define the regular expression pattern to identify columns to be excluded
-  #   exclude_pattern <- "DNA|DAPI"
-
-  #   # Use grep to get the column names matching the pattern
-  #   exclude_columns <- grep(exclude_pattern, colnames(uploaded_df()), value = TRUE, ignore.case = TRUE)
-
-  #   # Add the excluded columns to the original 'columns_to_exclude' vector
-  #   columns_to_exclude <- c(columns_to_exclude, exclude_columns)
-
-  #   column_names <- setdiff(names(uploaded_df()), columns_to_exclude)
-  #   print(column_names)
-  #     # Perform UMAP dimensionality reduction
-  #     # Perform UMAP dimensionality reduction
-  #     # Drop rows with any NA values in the selected columns
-  #     your_matrix <- data.matrix(uploaded_df()[, 'ELANE'])
-
-  #       # Perform UMAP dimensionality reduction on the cleaned dataset
-  #       umap_result <- umap(your_matrix)
-
-
-  #     print('hi')
-      
-  #     # Combine UMAP results with original dataframe
-  #     umap_df <- cbind(uploaded_df(), umap_result$layout)
-
-  #     # Plotting UMAP results
-  #     ggplot(umap_df, aes(x = umap_df[['1']], y = umap_df[['2']], color = factor(1:nrow(umap_df)))) +
-  #       geom_point() +
-  #       scale_color_discrete(guide = "none") +
-  #       labs(title = "UMAP Plot of Selected Columns")
-  # })
-
-
-  # Display TIFF image in the plotOutput
   output$icaAnalysis <- renderPlot({
 
     req(uploaded_df())
@@ -2359,9 +1649,6 @@ generate_histogram_pdf <- function(subdata_to_plot, pdf_file_name) {
           df_to_umapify[[i]][is.infinite(df_to_umapify[[i]])] <- 0
         }
 
-      # df_to_umapify[!is.infinite(df_to_umapify)] <- 0
-     
-
       print(colnames(df_to_umapify))
 
       your_matrix <- data.matrix(df_to_umapify[, column_names])
@@ -2382,83 +1669,10 @@ generate_histogram_pdf <- function(subdata_to_plot, pdf_file_name) {
         labs(title = "UMAP Plot of Selected Columns")
   })
 
-  #   # Display TIFF image in the plotOutput
-  # output$icaAnalysis <- renderPlot({
-  #   req(uploaded_df())
-  #   colnames(uploaded_df())
-  #   # Define the column names you want to exclude
-  #   columns_to_exclude <- c("imageid", "phenotype", "ROI_major_category", "CellID", "X", "Y", "DNA1", "DNA3", "DNA2", "Hoechst"
-  #   , "DAPI1", "DAPI2", "DNA13", "ROI_minor_category", "phenotype_v2", "X_centroid", "Y_centroid", "Eccentricity", "Area", "MajorAxisLength",
-  #   "MinorAxisLength", "Extent", "Solidity", "Orientation", "DNA_6", "DNA_7", "DNA_8", "DNA_9", "")  # List the columns to exclude
-  #   # Select all column names except the ones to exclude
-  #   # Define the regular expression pattern to identify columns to be excluded
-  #   exclude_pattern <- "DNA|DAPI"
-
-  #   # Use grep to get the column names matching the pattern
-  #   exclude_columns <- grep(exclude_pattern, colnames(uploaded_df()), value = TRUE, ignore.case = TRUE)
-
-  #   # Add the excluded columns to the original 'columns_to_exclude' vector
-  #   columns_to_exclude <- c(columns_to_exclude, exclude_columns)
-
-  #   column_names <- setdiff(names(uploaded_df()), columns_to_exclude)
-  #   print(column_names)
-  #     # Perform UMAP dimensionality reduction
-  #     # Perform UMAP dimensionality reduction
-  #     # Drop rows with any NA values in the selected columns
-
-  #     df_to_umapify <- uploaded_df()
-  #     df_to_umapify <- df_to_umapify[, column_names]
-  #     # Remove rows with any infinite values across all columns
-  #     # Loop through the list and replace infinite values in each vector with 0
-  #       for (i in seq_along(df_to_umapify)) {
-  #         df_to_umapify[[i]][is.infinite(df_to_umapify[[i]])] <- 0
-  #       }
-
-  #     # df_to_umapify[!is.infinite(df_to_umapify)] <- 0
-     
-
-  #     print(colnames(df_to_umapify))
-
-  #     your_matrix <- data.matrix(df_to_umapify[, column_names])
-
-  #       # # Perform UMAP dimensionality reduction on the cleaned dataset
-  #       # umap_result <- umap(your_matrix)
-
-  #     print('hi')
-      
-      
-
-  #        # Perform K-means clustering with 3 clusters
-  #   kmeans_fit <- kmeans(your_matrix, centers = 3)
-
-  #   # Add cluster labels to the UMAP dataframe
-  #   umap_df$cluster <- kmeans_fit$cluster
-
-  #   # Combine UMAP results with original dataframe
-  #         umap_df <- cbind(uploaded_df(), umap_df$cluster)
-
-
-  #             ggplot(umap_df, aes(x = umap_df[['1']], y = umap_df[['2']], color = factor(cluster))) +
-  #         geom_point() +
-  #         scale_color_discrete(palette = c("red", "green", "blue"), # Customize color palette
-  #                             labels = c("Cluster 1", "Cluster 2", "Cluster 3"), # Specify custom labels
-  #                             guide = guide_legend(title = "Pseudo Clusters")) +
-  #         labs(title = "UMAP Plot of Selected Columns")
-  # })
-
-
-
-
-
-
   unique_patients <- reactive({
   req(uploaded_df())
   unique(uploaded_df()$imageid)
   })
-
-#    observe({
-#   updateNumericInput(session, "intercept", value = '')
-# })
 
   observe({
   shinyjs::show("patient_number")
@@ -2466,7 +1680,6 @@ generate_histogram_pdf <- function(subdata_to_plot, pdf_file_name) {
 })
 
  observe({
-  #shinyjs::show("patient_number")
   updateRadioButtons(session, "patient_number_im_gargage", choices = unique_patients())
 })
 
@@ -2592,12 +1805,6 @@ observe({
   })
 
 
-   
-
-  # inputreactiveintercept <- reactive({
-  #   input
-  # })
-
   observe({
     updateSelectInput(session, "marker", choices = unique_markers())
 })
@@ -2605,7 +1812,6 @@ observe({
  observe({
     updateSelectInput(session, "marker_im_garage", choices = unique_markers())
 })
-
 
 
    observe({
@@ -2631,12 +1837,6 @@ observe({
     updateSelectInput(session, "zvar", choices = unique_markers())
 })
 
-
-
-  
-  # newdf <- reactiveVal(NULL)
-
-  # newdf <- reactiveVal(NULL)
 
   brushed_data <- reactiveVal(NULL)
   filtered_data_original <- reactiveVal(NULL)
@@ -2678,15 +1878,12 @@ observe({
 })
 
 
-
-
 # Function to filter columns based on a pattern
 filter_columns_by_pattern <- function(data, pattern) {
   selected_columns <- grep(pattern, colnames(data), value = TRUE)
   return(data[, selected_columns])
 }
 
-# crudeway_react <- reactiveVal(NULL)
 regression_mode_react <- reactiveVal(NULL)
 sugremReact <- reactiveVal(NULL)
 klPlotReact <- reactiveVal(NULL)
@@ -2733,14 +1930,6 @@ filtered_data_updated <- reactiveVal(NULL)
       histogram_plots <- plot_gating_grid(filtered_data, selected_patient, column_indices[selected_columns])
 
 
-
-      # output$histogram_plots_cyles 
-
-      #  output$histogram_plots_cyles <- renderPlot({
-      #       histogram_plots
-      #     })
-
-          # Define a function to find the mode of a vector
       find_mode <- function(x) {
         ux <- unique(x)
         ux[which.max(tabulate(match(x, ux)))]
@@ -2749,9 +1938,6 @@ filtered_data_updated <- reactiveVal(NULL)
         # Extract histogram data and find modes
         modes <- list()
         kldivs <- list()
-        # crudeway <- list()
-        # cut_threshold_list <- list()
-
         for (column_name in selected_columns) {
           histogram_data <- filtered_data[[column_name]]  # Assuming the histogram is the first grob
 
@@ -2763,7 +1949,6 @@ filtered_data_updated <- reactiveVal(NULL)
           mode_value <- find_mode(histogram_data)
 
         
-
           print(mode_value)
 
           # print(kldiv)
@@ -2864,82 +2049,9 @@ filtered_data_updated <- reactiveVal(NULL)
         print(mode_diffs)
 
 
-        # # Normalize mode differences
-        # ideal_mode_diff <- 0  # Ideal mode difference
-        # worst_mode_diff <- max(abs(mode_diffs))  # Worst-case mode difference
-
-        # # Assign scores for mode differences
-        # ideal_score_mode_diff <- 100
-        # worst_score_mode_diff <- 0
-
-        # # Normalize mode differences based on ideal and worst-case scenarios
-        # normalize_mode_diff <- function(value, ideal, worst) {
-        #   (value - worst) / (ideal - worst) * 100
-        # # }
-
-        # # Normalize mode differences
-        # # normalized_mode_diffs <- normalize_mode_diff(mode_diffs, ideal_mode_diff, worst_mode_diff)
-
-        # # Calculate overall quality score (average of KL divergence and mode difference scores)
-        # overall_quality_score <- mean(normalized_mode_diffs)
-
-        # # Determine gauge chart bounds based on overall quality score
-        # lower_bound <- min(overall_quality_score, 0)  # Lower bound
-        # upper_bound <- max(overall_quality_score, 100)  # Upper bound
-
-
-            # Calculate an overall score using KL divergence and mode values
-      # Calculate an overall score using KL divergence and mode values
-# # You might want to standardize these values to have comparable ranges
-#           kl_divergence_score <- mean(kl_df$KL_Divergence)  # Mean of KL divergences
-#           mode_score <- max(modes_df$Value) - min(modes_df$Value)  # Range of mode values
-
-#           # Combine scores to create an overall quality metric
-#           quality_score <- (kl_divergence_score + mode_score) / 2  # You can use a weighted sum based on importance
-
-
-          # # Create a gauge plot using Plotly
-          # gauge_plot <- plot_ly(
-          #   type = "indicator",
-          #   mode = "gauge+number",
-          #   value = overall_quality_score,
-          #   title = "Quality Gauge",
-          #   gauge = list(
-          #     axis = list(range = list(0, upper_bound)),
-          #     # steps = list(
-          #     #   list(range = c(0, 2), color = "red"),
-          #     #   list(range = c(2, 4), color = "orange"),
-          #     #   list(range = c(4, 6), color = "yellow"),
-          #     #   list(range = c(6, 8), color = "green"),
-          #     #   list(range = c(8, 10), color = "darkgreen")
-          #     # ),
-          #     steps = list(
-          #       list(range = c(0, 0.2*upper_bound), color = "red"),
-          #       list(range = c(0.2*upper_bound, 0.4*upper_bound), color = "orange"),
-          #       list(range = c(0.4*upper_bound, 0.6*upper_bound), color = "yellow"),
-          #       list(range = c(0.6*upper_bound, 0.8*upper_bound), color = "green"),
-          #       list(range = c(0.8*upper_bound, upper_bound), color = "darkgreen")
-          #     )
-          #     # threshold = list(
-          #     #   line = list(color = "black", width = 4),
-          #     #   thickness = 0.75,
-          #     #   value = 5
-          #     # )
-          #   )
-          # )
-
-          # library(plotly)
-
-          # Replace 0.5 with the actual mean of your KL divergences
           mean_KL_divergences <- mean(kl_df$KL_Divergence)
 
 
-          # library(plotly)
-
-          # Replace 0.5 with the actual mean of your KL divergences
-          # mean_KL_divergences <- 0.5
-
-          # Subtracting the value from 1 to invert the scale and normalize between 0 and 1
           normalized_value <- 1 - mean_KL_divergences
 
           first_cycle <- modes_df[1,2]
@@ -2955,17 +2067,6 @@ filtered_data_updated <- reactiveVal(NULL)
           # Get the name of the row corresponding to the minimum value
           min_row_name <- rownames(modes_df)[min_index]
 
-  #         gauge_plot <- gauge_plot %>%
-  # layout(
-  #   annotations = list(
-  #     text = "Your Text Here",
-  #     x = 0.5,  # X-coordinate position (0 to 1)
-  #     y = 0.5,  # Y-coordinate position (0 to 1)
-  #     showarrow = FALSE  # Set to TRUE if you want an arrow
-  #   )
-  # )
-
-          # Print the name of the row corresponding to the minimum value
           print('min name')
           print(min_row_name)
 
@@ -3020,26 +2121,6 @@ filtered_data_updated <- reactiveVal(NULL)
               )
 
 
-            # axis =list(range = list(NULL, 500)),
-
-          # modes_df[1,2]
-    
-            
-
-
-          # gauge_plot <- gauge_plot %>%
-          #   layout(
-          #     margin = list(l=20,r=30),
-          #     gauge = list(
-          #       axis = list(range = list(1, 0.5)),  # Set the range from 0 to 1
-          #       bar = list(color = "darkblue"),  # Customize the color of the gauge
-          #       steps = list(
-          #         list(range = c(0, 1), color = "lightgray")  # Customize steps if needed
-          #       )
-          #     )
-          #   )
-
-          # Render the gauge plot
           output$quality_gauge <- renderPlotly({
             gauge_plot
           })
@@ -3064,49 +2145,6 @@ filtered_data_updated <- reactiveVal(NULL)
             # Print the name of the row corresponding to the maximum value
             print(max_row_name)
 
-#             # Calculate percentiles for the KL divergences
-# percentiles <- quantile(kl_df[, 2], probs = seq(0, 1, 0.2))
-
-# # Extract the values for each percentile
-# percentile_values <- percentiles[order(percentiles, decreasing = TRUE)]
-
-# library(plotly)
-
-# # Define upper bound as 0 and lower bound as the highest KL divergence value
-# upper_bound <- 0
-# lower_bound <- percentile_values[1]  # The highest KL divergence value
-
-# # Create the gauge plot
-# gauge_plot_kl <- plot_ly(
-#   domain = list(x = c(0, 1), y = c(0, 1)),
-#   value = lower_bound,  # Set the value to the highest KL divergence value
-#   title = list(text = "Data Quality - KL Divergence"),
-#   type = "indicator",
-#   mode = "gauge+number",
-#   gauge = list(
-#     steps = list(
-#       list(range = c(0, 2 * lower_bound), color = "red"),
-#       list(range = c(0.2 * lower_bound, 0.4 * lower_bound), color = "orange"),
-#       list(range = c(0.4 * lower_bound, 0.6 * lower_bound), color = "yellow"),
-#       list(range = c(0.6 * lower_bound, 0.8 * lower_bound), color = "green"),
-#       list(range = c(0.8 * lower_bound, lower_bound), color = "darkgreen")
-#     ),
-#     axis = list(range = list(upper_bound, lower_bound)),  # Set the range from upper_bound to lower_bound
-#     bar = list(color = "black"),  # Customize the color of the gauge
-#     threshold = list(
-#       line = list(color = "black", width = 4),
-#       thickness = 0.75,
-#       value = lower_bound
-#     )
-#   )
-# )
-
-# # Print the gauge plot
-# gauge_plot_kl
-
-
-
-            # Create the gauge plot
             gauge_plot_kl <- plot_ly(
               domain = list(x = c(0, 1), y = c(0, 1)),
               value = lower_bound,  # Set the value to the maximum value from kl_df
@@ -3131,13 +2169,6 @@ filtered_data_updated <- reactiveVal(NULL)
               )
             )
 
-          #     # Render the gauge plot
-          # output$quality_gauge_kl <- renderPlotly({
-          #   gauge_plot_kl 
-          # })
-
-
-            
                 })
 
  # Render the plot
@@ -3150,16 +2181,6 @@ filtered_data_updated <- reactiveVal(NULL)
         })
 
     
-#        observeEvent(input$RetainSubset, {
-#   brushed_data(brushedPoints(filtered_data_reactive()[, c("CellID", "X_centroid", "Y_centroid")], input$plot_brush, xvar = "X_centroid", yvar = "Y_centroid"))
-#   filtered_data_reactive(brushed_data())
-#   output$image_garage_output <- renderPlot({
-#     ggplot(filtered_data_reactive(), aes(x = X_centroid, y = Y_centroid)) +
-#       geom_point() +
-#       xlab('X Centroid') + ylab('Y Centroid')
-#   })
-# })
-
     observeEvent(input$RetrySubset, {
       selected_marker <- input$precrev_marker
   brushed_data(NULL)
@@ -3196,30 +2217,6 @@ observeEvent(input$RemoveSubset, {
 })
 
 
-# observeEvent(event_data("plotly_selected"), {
-#     selected_marker <- input$precrev_marker
-
-#   # event_data("plotly_selected") contains the selected points' information
-#   selected_points <- event_data("plotly_selected")
-#   print("selected points printed below!!")
-#   print(selected_points)
-
-
-#   selected_points$
-  
-#   if (!is.null(selected_points)) {
-#     filtered_data_reactive(filtered_data_reactive() %>% 
-#                              filter(!CellID %in% selected_points$CellID))
-    
-#     output$image_garage_output <- renderPlotly({
-#       ggplot(filtered_data_reactive(), aes(x = X_centroid, y = Y_centroid, color = filtered_data_reactive()[[selected_marker]])) +
-#         geom_point(alpha = selected_opacity()) +
-#         xlab('X Centroid') + ylab('Y Centroid')
-#     })
-#   }
-# })
-
-
 observeEvent(event_data("plotly_selected"), {
   selected_marker <- input$precrev_marker
 
@@ -3247,28 +2244,7 @@ observeEvent(event_data("plotly_selected"), {
 })
 
 
-
-
     observeEvent(input$UseSubset, {
-    # #Get the unique imageids from filtered_data_reactive
-    # selected_imageid <- unique(filtered_data_reactive()$imageid)
-
-    # # Update uploaded_df by replacing rows with matching imageid
-    # updated_df <- uploaded_df()
-    # updated_df[updated_df$imageid %in% selected_imageid, ] <- filtered_data_reactive()
-
-    # # Update uploaded_df with the updated data
-    # uploaded_df(updated_df)
-
-    #   # Get the common identifier
-    # common_ids <- filtered_data_reactive()$imageid
-    
-    # print(common_ids)
-    # print(uploaded_df()$imageid)
-    
-    # # Subset the rows in uploaded_df() based on the common identifier
-    # uploaded_df()[uploaded_df()$imageid %in% common_ids, ] <- filtered_data_reactive()
-
     uploaded_df(filtered_data_reactive())
     
 
@@ -3282,75 +2258,6 @@ observeEvent(event_data("plotly_selected"), {
 
 })
 
-# observeEvent(input$UseSubset, {
-#   # Get the common identifier
-#   common_ids <- filtered_data_reactive()$imageid
-  
-#   # Subset the rows in uploaded_df() based on the common identifier
-#   uploaded_df()[uploaded_df()$imageid %in% common_ids, ] <- filtered_data_reactive()
-  
-#   print(colnames(uploaded_df()))
-# })
-
-
-
-# observeEvent(input$UseSubset, {
-#   # Get the unique imageids from filtered_data_reactive
-#   selected_imageid <- unique(filtered_data_reactive()$imageid)
-
-#   # Update uploaded_df by replacing rows with matching imageid
-#   updated_df <- uploaded_df()
-#   updated_df[updated_df$imageid %in% selected_imageid, ] <- filtered_data_reactive()
-
-#   # Update uploaded_df with the updated data
-#   uploaded_df(updated_df)
-# })
-
-
- 
-
-# bursher <- reactive({
-#       input$plotBrush
-#     })
-# ... Your previous code ...
-
-# Inside the server function
-
-
-# output$image_garage_output <- renderPlotly({
-#   # Get selected marker and patient
-#   selected_patient <- input$patient_number_im_gargage
-  
-#   # Filter data based on selected patient
-#   filtered_data <- uploaded_df()[uploaded_df()$imageid %in% selected_patient, ]
-#   filtered_data_react(filtered_data)
-  
-#   p <- plot_ly(x = ~filtered_data$X_centroid, y = ~filtered_data$Y_centroid, type = 'scatter', mode = 'markers')
-  
-#   p <- layout(p, xaxis = list(title = 'X Centroid'), yaxis = list(title = 'Y Centroid'))
-  
-#   p <- p %>% highlight(on = 'plotly_selected', selectize = TRUE)
-  
-#   p
-# })
-
-# observeEvent(event_data("plotly_selected"), {
-#   selected_points <- event_data("plotly_selected")
-#   if (!is.null(selected_points)) {
-#     selected_points <- filtered_data_react[selected_points$pointNumber + 1, ] # +1 because pointNumber is 0-based
-#     newdf(selected_points)
-#     print(newdf())
-#   }
-# })
-
-  
-  # ... Your previous code ...
-  
-
-
-# ... Your remaining code ...
-
-# Download button handler to save the Phenotype Table as a CSV file
   output$downloadPhenotypeTable <- downloadHandler(
     filename = function() {
       "phenotype_table.csv"
@@ -3359,7 +2266,6 @@ observeEvent(event_data("plotly_selected"), {
       write.csv(phenotype_df(), file, row.names = FALSE)
     }
   )
-
 
 
       # Functions that return statistics from the models in list, save into csv and download
@@ -3382,10 +2288,6 @@ observeEvent(event_data("plotly_selected"), {
       write.csv(mydftosave, file, row.names = FALSE) 
     }
   )
-
-
-
-
 
 
       # Functions that return statistics from the models in list, save into csv and download
@@ -3429,7 +2331,6 @@ observeEvent(event_data("plotly_selected"), {
    )
 
 
-
 observeEvent(c(input$xvar, input$yvar), {
   # Clear the input fields
   updateTextInput(session, "gate_xvar_update", value = "")
@@ -3441,10 +2342,7 @@ observeEvent(c(input$xvar, input$yvar), {
 })
 
 
- 
   subsetted <- reactive({
-    # shinyjs::show("plot2")
-
     req(input$patient_number_plot2)
     uploaded_df() |> filter(imageid %in% input$patient_number_plot2)  
    
@@ -3452,16 +2350,12 @@ observeEvent(c(input$xvar, input$yvar), {
 
   
   subsetted_precrev_ts <- reactive({
-    # shinyjs::show("plot2")
-
     req(input$patients_ts)
     uploaded_df() |> filter(imageid %in% input$patients_ts)  
    
   })
 
     subsetted_tri <- reactive({
-    # shinyjs::show("plot2")
-
     req(input$trivar_patient)
     uploaded_df() |> filter(imageid %in% input$trivar_patient)  
    
@@ -3640,7 +2534,6 @@ observeEvent(c(input$xvar, input$yvar), {
 }
 
       
-
 generatePlotTrivar <- function() {
 
     output$plot_trivariate <- renderPlotly({
@@ -3656,15 +2549,6 @@ generatePlotTrivar <- function() {
     zvar <- input$zvar
 
 
-    # print(patient_selected)
-    # print(xvar)
-    # print(yvar)
-
-    # print(resultdf_reactive())
-
-    # print(resultdf_reactive()$Marker == xvar)
-    # print(resultdf_reactive()$Patient == patient_selected)
-
     gate_xvar <- resultdf_reactive()$Gate[
     resultdf_reactive()$Marker == xvar &
     resultdf_reactive()$Patient == patient_selected
@@ -3679,27 +2563,6 @@ generatePlotTrivar <- function() {
     resultdf_reactive()$Marker == zvar &
     resultdf_reactive()$Patient == patient_selected
   ]
-
-    # Check if react_xgate or react_ygate is defined
-    # if (!is.null(react_xgate())) {
-    #   # Code to execute when react_xgate is defined
-    #   gate_xvar <- react_xgate()
-    #   if (xvar == yvar) {
-    #   gate_yvar <- gate_xvar
-    #   }
-    # }
-
-
-    # if (!is.null(react_ygate())) {
-    #   # Code to execute when react_ygate is defined
-    #   gate_yvar <- react_ygate()
-    #   if (xvar == yvar) {
-    #   gate_xvar <- gate_yvar
-    #   }
-    # }
-
-
-  
 
     print(gate_xvar)
     print(gate_yvar)
@@ -3721,364 +2584,20 @@ generatePlotTrivar <- function() {
     )
 
 
-
-    # p <- plot_ly(dfplot2, x = ~dfplot2[[xvar]], y = ~dfplot2[[yvar]], z = ~dfplot2[[zvar]], type = "scatter3d") %>%
-    #   layout(scene = list(xaxis=axx,yaxis=axy,zaxis=axz), 
-    #   # Add vertical lines (intercepts)
-    #     add_trace(data = data.frame(x = gate_xvar, y = dfplot2[[yvar]], z = dfplot2[[zvar]]), type = "scatter3d", mode = "lines", line = list(color = "red")),
-    #     add_trace(data = data.frame(x = dfplot2[[xvar]], y = gate_yvar, z = dfplot2[[zvar]]), type = "scatter3d", mode = "lines", line = list(color = "blue")),
-    #     add_trace(data = data.frame(x = dfplot2[[xvar]], y = dfplot2[[yvar]], z = gate_zvar), type = "scatter3d", mode = "lines", line = list(color = "green")))
-
-#     # gate_zvar_matrix = data.frame(x = range(dfplot2[[xvar]]), y = range(dfplot2[[yvar]]), z = gate_zvar)
-# # Suppose gate_zvar is the z-value for the plane
-# gate_zvar_plane <- expand.grid(
-#   x = range(dfplot2[[xvar]]),
-#   y = range(dfplot2[[yvar]])
-# )
-
-# # Create a matrix to represent the plane with constant z-values
-# # Define the dimensions (rows and columns) based on the length of x and y coordinates
-# rows <- length(unique(gate_zvar_plane$y))  # Number of rows
-# cols <- length(unique(gate_zvar_plane$x))  # Number of columns
-
-# # Create a matrix with z-values filled with gate_zvar
-# gate_z_matrix <- matrix(rep(gate_zvar, rows * cols), nrow = rows, ncol = cols, byrow = TRUE)
-
-# # Assign the z-values to gate_zvar_plane
-# gate_zvar_plane$z <- as.vector(t(gate_z_matrix))
-
-# print(dim)
-
-# # Get the desired z-value
-# z_value <- gate_zvar  # Replace this with the desired z-value
-
-# # Create a matrix with the same dimensions as your data with the specified z-value
-# z_values <- matrix(rep(z_value, nrow(dfplot2) * ncol(dfplot2)), nrow = nrow(dfplot2[[xvar]]), ncol = ncol(dfplot2[[yvar]]))
-
-# Create a Plotly surface plot
-# fig <- plot_ly(z = ~z_values, type = "surface", showscale = FALSE)
-
-
-
      p <- plot_ly(dfplot2, x = ~dfplot2[[xvar]], y = ~dfplot2[[yvar]], z = ~dfplot2[[zvar]], type = "scatter3d") %>%
     layout(scene = list(
       xaxis = axx,
       yaxis = axy,
       zaxis = axz)
-      # Add planes to separate regions
-      # add_trace(data = data.frame(x = c(gate_xvar, max(dfplot2[[xvar]])), y = dfplot2[[yvar]], z = dfplot2[[zvar]]), type = "mesh3d", color = I("rgba(255, 0, 0, 0.3)")) %>%
-      #   add_trace(data = data.frame(x = dfplot2[[xvar]], y = c(gate_yvar, max(dfplot2[[yvar]])), z = dfplot2[[zvar]]), type = "mesh3d", color = I("rgba(0, 255, 0, 0.3)")) %>%
-      #   add_trace(data = data.frame(x = dfplot2[[xvar]], y = dfplot2[[yvar]], z = c(gate_zvar, max(dfplot2[[zvar]]))), type = "mesh3d", color = I("rgba(0, 0, 255, 0.3)"))
       )
       
 
-  # p <- p %>% add_surface(z = ~z_values, type = "surface")
-
-  # p <- plot_ly(data = xy_grid, x = ~x, y = ~y, z = ~z, type = "surface")
-
-
-
-  
-
-
 p
-
-
-
-#     z <- c(
-#   c(8.83,8.89,8.81,8.87,8.9,8.87),
-#   c(8.89,8.94,8.85,8.94,8.96,8.92),
-#   c(8.84,8.9,8.82,8.92,8.93,8.91),
-#   c(8.79,8.85,8.79,8.9,8.94,8.92),
-#   c(8.79,8.88,8.81,8.9,8.95,8.92),
-#   c(8.8,8.82,8.78,8.91,8.94,8.92),
-#   c(8.75,8.78,8.77,8.91,8.95,8.92),
-#   c(8.8,8.8,8.77,8.91,8.95,8.94),
-#   c(8.74,8.81,8.76,8.93,8.98,8.99),
-#   c(8.89,8.99,8.92,9.1,9.13,9.11),
-#   c(8.97,8.97,8.91,9.09,9.11,9.11),
-#   c(9.04,9.08,9.05,9.25,9.28,9.27),
-#   c(9,9.01,9,9.2,9.23,9.2),
-#   c(8.99,8.99,8.98,9.18,9.2,9.19),
-#   c(8.93,8.97,8.97,9.18,9.2,9.18)
-# )
-# dim(z) <- c(15,6)
-# z2 <- z + 1
-# z3 <- z - 1
-
-# fig <- plot_ly(showscale = FALSE)
-# fig <- fig %>% add_surface(z = ~z)
-# fig <- fig %>% add_surface(z = ~z2, opacity = 0.98)
-# fig <- fig %>% add_surface(z = ~z3, opacity = 0.98)
-
-# fig
-
-    
-# p
-
-
-
-
-
-# p <- plot_ly(dfplot2, x = ~dfplot2[[xvar]], y = ~dfplot2[[yvar]], z = ~dfplot2[[zvar]], type = "scatter3d") %>%
-#   layout(scene = list(
-#     xaxis = axx,
-#     yaxis = axy,
-#     zaxis = axz
-#   )) %>%
-#   add_trace(data = data.frame(x = c(gate_xvar, gate_xvar), y = range(dfplot2[[yvar]]), z = range(dfplot2[[zvar]])), type = "scatter3d", mode = "lines", line = list(color = "red", width = 2)) %>%
-#   add_trace(data = data.frame(x = range(dfplot2[[xvar]]), y = c(gate_yvar, gate_yvar), z = range(dfplot2[[zvar]])), type = "scatter3d", mode = "lines", line = list(color = "green", width = 2)) %>%
-#   add_trace(data = data.frame(x = range(dfplot2[[xvar]]), y = range(dfplot2[[yvar]]), z = c(gate_zvar, gate_zvar)), type = "scatter3d", mode = "lines", line = list(color = "blue", width = 2))
-
-
-
-# p <- plot_ly(dfplot2, x = ~dfplot2[[xvar]], y = ~dfplot2[[yvar]], z = ~dfplot2[[zvar]], type = "scatter3d") %>%
-#   layout(scene = list(
-#     xaxis = axx,
-#     yaxis = axy,
-#     zaxis = axz
-#   )) %>%
-#   add_trace(data = data.frame(x = c(min(dfplot2[[xvar]]), max(dfplot2[[xvar]])), y = c(gate_yvar, gate_yvar), z = c(gate_zvar, gate_zvar), type = "mesh3d", color = I("rgba(0, 255, 0, 0.3)"))) %>%
-#   add_trace(data = data.frame(x = c(gate_xvar, gate_xvar), y = c(min(dfplot2[[yvar]]), max(dfplot2[[yvar]])), z = c(gate_zvar, gate_zvar), type = "mesh3d", color = I("rgba(255, 0, 0, 0.3)"))) %>%
-#   add_trace(data = data.frame(x = c(gate_xvar, gate_xvar), y = c(gate_yvar, gate_yvar), z = c(min(dfplot2[[zvar]]), max(dfplot2[[zvar]])), type = "mesh3d", color = I("rgba(0, 0, 255, 0.3)")))
-
-# p
-   
 
 
   })
 
 }
-
-
-
-
-    
-
-
-  # output$plot2 <- renderPlot({
-
-  
-  #   dfplot2 <- subsetted()
-
-  #   print(colnames(dfplot2))
-
-  #     # gate_xvar <- resultdf_reactive()$Gate[resultdf_reactive()$Marker == input$xvar]
-  #     # gate_yvar <- resultdf_reactive()$Gate[resultdf_reactive()$Marker == input$yvar]
-
-  # #     resultdf_reactive()$Gate[
-  # #   resultdf_reactive()$Marker == chosen_marker &
-  # #   resultdf_reactive()$Patient == chosen_patient
-  # # ]
-
-
-  #   xvar <- input$xvar
-  #   yvar <- input$yvar
-
-  #   # gate_xvar <- input$gate_xvar_update
-  #   # gate_yvar <- input$gate_xvar_update
-
-  #   gate_vliner <- dfplot2[[xvar]]
-  #   gate_hliner <- dfplot2[[yvar]]
-
-  #       # dfplot2$density <- get_density(gate_vliner, gate_hliner, n = 100)
-
-
-  #   gate_vliner <- remove_outliers2(gate_vliner)
-  #   gate_hliner <- remove_outliers2(gate_hliner)
-
-  #   gate_vliner <- gate_vliner[!is.infinite(gate_vliner)]
-  #   gate_hliner <- gate_hliner[!is.infinite(gate_hliner)]
-
-  #   gate_xvar <- skew_gate(gate_vliner, alpha=0.01)
-  #   gate_yvar <- skew_gate(gate_hliner, alpha=0.01)
-
-
-  #    # Calculate proportions
-  #   num_points <- nrow(dfplot2)
-  #   num_pp <- sum(dfplot2[[xvar]] > gate_xvar$cutoff & dfplot2[[yvar]] > gate_yvar$cutoff)
-  #   num_pm <- sum(dfplot2[[xvar]] > gate_xvar$cutoff & dfplot2[[yvar]] <= gate_yvar$cutoff)
-  #   num_mp <- sum(dfplot2[[xvar]] <= gate_xvar$cutoff & dfplot2[[yvar]] > gate_yvar$cutoff)
-  #   num_mm <- sum(dfplot2[[xvar]] <= gate_xvar$cutoff & dfplot2[[yvar]] <= gate_yvar$cutoff)
-
-  #   prop_pp <- num_pp / num_points
-  #   prop_pm <- num_pm / num_points
-  #   prop_mp <- num_mp / num_points
-  #   prop_mm <- num_mm / num_points
-
-  #         output$prop_summary <- renderPrint({
-  #     cat("Proportion of ++:", prop_pp, "\n")
-  #     cat("Proportion of -+:", prop_pm, "\n")
-  #     cat("Proportion of +-:", prop_mp, "\n")
-  #     cat("Proportion of --:", prop_mm, "\n")
-  #   })
-
-  #   # message("Proportion of ++:", prop_pp, "\n")
-  #   # message("Proportion of -+:", prop_pm, "\n")
-  #   # message("Proportion of +-:", prop_mp, "\n")
-  #   # message("Proportion of --:", prop_mm, "\n")
-
-
-  #   # dfplot2$density <- get_density(dfplot2$input$xvar, dfplot2$input$yvar, n = 100)
-
-
-  #   p <- ggplot(dfplot2, aes(!!input$xvar,!!input$yvar)) + 
-  #   geom_vline(xintercept = gate_xvar$cutoff, color = "red") +
-  #   geom_hline(yintercept = gate_yvar$cutoff, color = "blue") +
-  #   # scale_color_viridis(option="turbo") + 
-
-    
-  #   list(
-  #     theme(legend.position = "bottom"),
-  #     if (input$by_species)
-  #       aes(color = imageid),
-  #     geom_point(),
-
-  #     if (input$smooth)
-  #       geom_smooth()
-  #   )
-  #   if (input$show_margins) {
-  #     margin_type <- if (input$by_species)
-  #       "density"
-  #     else
-  #       "histogram"
-  #     p <-
-  #       p |> ggExtra::ggMarginal(
-  #         type = margin_type,
-  #         margins = "both",
-  #         size = 8,
-  #         groupColour = input$by_species,
-  #         groupFill = input$by_species
-  #       )
-  #   }
-    
-
-
-  # print(p)
-
-
-  # })
-
-
-
-#   observeEvent(input$update_gates_bivariate, {
-
-#    react_xgate(input$gate_xvar_update)
-#    react_ygate(input$gate_yvar_update)
-
-
-#     # # Check if react_xgate or react_ygate is defined
-#     # if (!is.null(react_xgate())) {
-#     #   # Code to execute when react_xgate is defined
-#     #   gate_xvar$cutoff <- react_xgate()
-#     # }
-
-
-#     # if (!is.null(react_ygate())) {
-#     #   # Code to execute when react_ygate is defined
-#     #   gate_yvar$cutoff <- react_ygate()
-#     # }
-
-
-   
-
-#    generatePlotBivar()
-
-# })
-
-# observeEvent(input$update_gates_bivariate, {
-
-#   react_xgate_value <- input$gate_xvar_update
-#   react_ygate_value <- input$gate_yvar_update
-
-#   print(react_xgate_value)
-#   print(react_ygate_value)
-
-#   # Check if input is blank and set react_xgate accordingly
-#   if (react_xgate_value == "") {
-#     react_xgate(NULL)
-#   } else {
-#     react_xgate(react_xgate_value)
-#   }
-
-#   # Check if input is blank and set react_ygate accordingly
-#   if (react_ygate_value == "") {
-#     react_ygate(NULL)
-#   } else {
-#     react_ygate(react_ygate_value)
-#   }
-
-#   generatePlotBivar()
-
-#   # input$gate_xvar_update <- ""
-#   # input$gate_yvar_update <- ""
-# })
-
-
-# observeEvent(input$update_gates_bivariate, {
-#   # Check if the input values are not blank
-#   if (input$gate_xvar_update != "") {
-#     react_xgate(as.numeric(input$gate_xvar_update))  # Assuming gate values are numeric
-#   } else {
-#     # If input is blank, reset to NULL or original value
-#     react_xgate(NULL)  # Set to NULL or original value
-#   }
-
-#   if (input$gate_yvar_update != "") {
-#     react_ygate(as.numeric(input$gate_yvar_update))  # Assuming gate values are numeric
-#   } else {
-#     # If input is blank, reset to NULL or original value
-#     react_ygate(NULL)  # Set to NULL or original value
-#   }
-
-#   generatePlotBivar()
-# })
-
-# observeEvent(input$update_gates_bivariate, {
-#   # Check if the input values are not blank
-#   if (!is.null(input$gate_xvar_update) && input$gate_xvar_update != "") {
-#     react_xgate(as.numeric(input$gate_xvar_update))  # Assuming gate values are numeric
-#   } else {
-#     # If input is blank, reset to NULL or original value
-#     react_xgate(NULL)  # Set to NULL or original value
-#   }
-
-#   if (!is.null(input$gate_yvar_update) && input$gate_yvar_update != "") {
-#     react_ygate(as.numeric(input$gate_yvar_update))  # Assuming gate values are numeric
-#   } else {
-#     # If input is blank, reset to NULL or original value
-#     react_ygate(NULL)  # Set to NULL or original value
-#   }
-
-#   print("gate x and y var updates")
-#   print(input$gate_xvar_update)
-
-#   print(input$gate_yvar_update)
-
-#   generatePlotBivar()
-# })
-
-
-# observeEvent(input$update_gates_bivariate, {
-#   print("Before react_xgate update")
-#   print(input$gate_xvar_update)
-#   if (!is.null(input$gate_xvar_update) && input$gate_xvar_update != "" && !is.na(input$gate_xvar_update)) {
-#     react_xgate(as.numeric(input$gate_xvar_update))
-#   } else {
-#     react_xgate(NULL)
-#   }
-#   print("After react_xgate update")
-
-#   print("Before react_ygate update")
-#   if (!is.null(input$gate_yvar_update) && input$gate_yvar_update != "") {
-#     react_ygate(as.numeric(input$gate_yvar_update))
-#   } else {
-#     react_ygate(NULL)
-#   }
-#   print("After react_ygate update")
-
-#   generatePlotBivar()
-# })
 
 
 observeEvent(input$update_gates_bivariate, {
@@ -4100,136 +2619,6 @@ observeEvent(input$update_gates_bivariate, {
 
   generatePlotBivar()
 })
-
-
-
-
-
-
-#   output$prop_summary <- renderPrint({
-#   cat("Proportion of ++:", prop_pp, "\n")
-#   cat("Proportion of -+:", prop_pm, "\n")
-#   cat("Proportion of +-:", prop_mp, "\n")
-#   cat("Proportion of --:", prop_mm, "\n")
-# })
-
-
-#   output$plot2 <- renderPlot({
-#   dfplot2 <- subsetted()
-
-#   xvar <- input$xvar
-#   yvar <- input$yvar
-
-#   gate_vliner <- dfplot2[[xvar]]
-#   gate_hliner <- dfplot2[[yvar]]
-
-#   gate_vliner <- remove_outliers2(gate_vliner)
-#   gate_hliner <- remove_outliers2(gate_hliner)
-
-#   gate_vliner <- gate_vliner[!is.infinite(gate_vliner)]
-#   gate_hliner <- gate_hliner[!is.infinite(gate_hliner)]
-
-#   gate_xvar <- skew_gate(gate_vliner, alpha=0.01)
-#   gate_yvar <- skew_gate(gate_hliner, alpha=0.01)
-
-#   print(gate_xvar$cutoff)
-#   print(gate_yvar$cutoff)
-
-#   # Calculate proportions
-#   num_points <- nrow(dfplot2)
-#   num_pp <- sum(dfplot2[[xvar]] > gate_xvar$cutoff & dfplot2[[yvar]] > gate_yvar$cutoff)
-#   num_pm <- sum(dfplot2[[xvar]] > gate_xvar$cutoff & dfplot2[[yvar]] <= gate_yvar$cutoff)
-#   num_mp <- sum(dfplot2[[xvar]] <= gate_xvar$cutoff & dfplot2[[yvar]] > gate_yvar$cutoff)
-#   num_mm <- sum(dfplot2[[xvar]] <= gate_xvar$cutoff & dfplot2[[yvar]] <= gate_yvar$cutoff)
-
-#   prop_pp <- num_pp / num_points
-#   prop_pm <- num_pm / num_points
-#   prop_mp <- num_mp / num_points
-#   prop_mm <- num_mm / num_points
-
-#   cat("Proportion of ++:", prop_pp, "\n")
-#   cat("Proportion of -+:", prop_pm, "\n")
-#   cat("Proportion of +-:", prop_mp, "\n")
-#   cat("Proportion of --:", prop_mm, "\n")
-
-#   # Rest of your ggplot code...
-# })
-
-
-#   output$plot2 <- renderPlot({
-#   dfplot2 <- subsetted()
-
-#   p <- ggplot(dfplot2, aes(!!input$xvar, !!input$yvar)) +
-#     theme(legend.position = "bottom") +
-#     if (input$by_species) aes(color = imageid) +
-#     geom_point() +
-#     if (input$smooth) geom_smooth()
-
-#   if (input$show_margins) {
-#     margin_type <- if (input$by_species) "density" else "histogram"
-#     p <- p + ggExtra::ggMarginal(
-#       type = margin_type,
-#       margins = "both",
-#       size = 8,
-#       groupColour = input$by_species,
-#       groupFill = input$by_species
-#     )
-#   }
-
-#   # Add geom_vlines for xvar and yvar
-#   gate_xvar <- resultdf_reactive()$Gate[resultdf_reactive()$Marker == input$xvar]
-#   gate_yvar <- resultdf_reactive()$Gate[resultdf_reactive()$Marker == input$yvar]
-
-#   p <- p +
-#     geom_vline(xintercept = gate_xvar, color = "red") +
-#     geom_hline(yintercept = gate_yvar, color = "blue")
-
-#   p
-# })
-
-# output$plot2 <- renderPlot({
-
-#   dfplot2 <- subsetted()
-
-#   # ...
-
-#   gate_xvar <- input$gate_xvar
-#   gate_yvar <- input$gate_yvar
-
-#   p <- ggplot(dfplot2, aes(!!input$xvar,!!input$yvar)) + 
-#     geom_vline(xintercept = gate_xvar, color = "red") +
-#     geom_hline(yintercept = gate_yvar, color = "blue") 
-
-#   # ...
-
-#   return(p)
-# })
-
-# output$proportions <- renderPrint({
-#   dfplot2 <- subsetted()
-
-#   gate_xvar <- input$gate_xvar
-#   gate_yvar <- input$gate_yvar
-
-#   # ...
-
-#   cat("Proportion of ++:", prop_pp, "\n")
-#   cat("Proportion of -+:", prop_pm, "\n")
-#   cat("Proportion of +-:", prop_mp, "\n")
-#   cat("Proportion of --:", prop_mm, "\n")
-# })
-
-# observeEvent(input$update_gates, {
-#   # Triggered when the button is clicked
-
-#   # Recalculate proportions and redraw the plot
-#   invalidateLater(0)
-
-# })
-
-
-
-  
 
 
   output$plot3 <- renderPlotly({
@@ -4265,8 +2654,6 @@ observeEvent(input$update_gates_bivariate, {
 })
 
 
-  
-  
  output$marker_checkboxes <- renderUI({
     marker_data <- input$selected_columns
     
@@ -4287,7 +2674,6 @@ observeEvent(input$update_gates_bivariate, {
     tagList(switch_list)
 
   })
-
 
 
   # Track selected markers and their statuses
@@ -4371,7 +2757,6 @@ updatePhenotypeDF3 <- function(phenotype_name, phenotype_markers) {
 }
 
 
-
   cleanPhenotype <- function(phenotype_output) {
   # Split the output string by newline character
   phenotype_list <- strsplit(phenotype_output, "\n")[[1]]
@@ -4419,102 +2804,6 @@ cleanPhenotype3 <- function(phenotype_output) {
 }
 
 
-# # Function to subset the dataframe based on phenotype-markers
-# subsetAndCount <- function(df, phenotype_df) {
-#   if (is.null(phenotype_df())) {
-#     return(NULL)
-#   }
-  
-#   counts <- lapply(phenotype_df()$markers, function(markers) {
-#     subset_df <- df[rowSums(df[, markers]) == length(markers), ]
-#     nrow(subset_df)
-#   })
-  
-#   return(counts)
-# }
-
-# # Function to subset df_positivity based on markers and return counts
-# subsetAndCount <- function(df, phenotype_df) {
-#   phenotype_counts <- lapply(1:nrow(phenotype_df), function(i) {
-#     markers <- unlist(strsplit(phenotype_df[i, "markers"], ", "))
-#     markers <- markers[markers != ""]  # Remove empty elements
-#     subset_df <- df[rowSums(df[, paste0(markers, "_positivity")] == "+") == length(markers), ]
-#     nrow(subset_df)
-#   })
-  
-#   names(phenotype_counts) <- phenotype_df$phenotype
-#   return(phenotype_counts)
-# }
-
-# subsetAndCount <- function(df, phenotype_df) {
-#   phenotype_counts <- lapply(1:nrow(phenotype_df), function(i) {
-#     markers <- unlist(strsplit(phenotype_df[i, "markers"], ", "))
-#     markers <- markers[markers != ""]  # Remove empty elements
-#     # Construct the column names for positivity markers
-#     marker_columns <- paste0(markers, "_positivity")
-    
-#     # Subset the dataframe
-#     subset_df <- df[rowSums(df[, marker_columns] == "+") == length(markers), ]
-#     nrow(subset_df)
-#   })
-  
-#   names(phenotype_counts) <- phenotype_df$phenotype
-#   return(phenotype_counts)
-# }
-# Subset rows where specific columns have values equal to "+"
-# subset_data <- subset(df, KRT14_positivity == "+" & CD207_positivity == "+" & SOX10_positivity == "+")
-
-
-
-# subsetAndCount <- function(df, phenotype_df) {
-#   phenotype_counts <- lapply(1:nrow(phenotype_df), function(i) {
-#     markers <- unlist(strsplit(phenotype_df[i, "markers"], ", "))
-#     markers <- markers[markers != ""]  # Remove empty elements
-#     condition <- ""
-#     for (marker in markers) {
-#       if (grepl("\\+", marker)) {
-#         condition <- paste0(condition, "& ", marker)
-#       } else if (grepl("-", marker)) {
-#         condition <- paste0(condition, "& ", marker, "== '-'")
-#       }
-#     }
-#     condition <- substr(condition, 3, nchar(condition))  # Remove the leading "& "
-#     subset_df <- subset(df, eval(parse(text = condition)))
-#     nrow(subset_df)
-#   })
-  
-#   names(phenotype_counts) <- phenotype_df$phenotype
-#   return(phenotype_counts)
-# }
-
-# subsetAndCount <- function(df, phenotype_df) {
-#   phenotype_counts <- lapply(1:nrow(phenotype_df), function(i) {
-#     markers <- unlist(strsplit(phenotype_df[i, "markers"], ", "))
-#     markers <- markers[markers != ""]  # Remove empty elements
-#     positive_markers <- markers[grepl("\\+", markers)]
-#     negative_markers <- markers[grepl("-", markers)]
-    
-#     conditions <- lapply(positive_markers, function(marker) {
-#       marker <- gsub("[+,]", "", marker)
-#       paste0(marker, "_positivity == '+'")
-#     })
-    
-#     neg_conditions <- lapply(negative_markers, function(marker) {
-#       marker <- gsub("[-,]", "", marker)
-#       paste0(marker, "_positivity == '-'")
-#     })
-    
-#     all_conditions <- c(conditions, neg_conditions)
-#     combined_conditions <- paste(all_conditions, collapse = " & ")
-    
-#     subset_df <- subset(df, subset = eval(parse(text = combined_conditions)))
-#     nrow(subset_df)
-#   })
-  
-#   names(phenotype_counts) <- phenotype_df$phenotype
-#   return(phenotype_counts)
-# }
-
 subsetAndCount <- function(df, phenotype_df) {
   original_df <- uploaded_df()
   phenotype_counts <- lapply(1:nrow(phenotype_df), function(i) {
@@ -4560,75 +2849,6 @@ subsetAndCount <- function(df, phenotype_df) {
   return(phenotype_counts)
 }
 
-# subsetAndCount <- function(df, phenotype_df, any_switch) {
-#   original_df <- uploaded_df()
-#   phenotype_counts <- lapply(1:nrow(phenotype_df), function(i) {
-#     markers <- unlist(strsplit(phenotype_df[i, "markers"], ", "))
-#     markers <- markers[markers != ""]  # Remove empty elements
-#     positive_markers <- markers[grepl("\\+", markers)]
-#     negative_markers <- markers[grepl("-", markers)]
-    
-#     # Modify the condition based on the 'ANY' switch
-#     if (any_switch) {
-#       positive_markers <- paste0(positive_markers, "_positivity == '+'")
-#       negative_markers <- paste0(negative_markers, "_positivity == '-'")
-#       combined_conditions <- paste(c(positive_markers, negative_markers), collapse = " | ")
-#     } else {
-#       conditions <- lapply(positive_markers, function(marker) {
-#         marker <- gsub("[+,]", "", marker)
-#         paste0(marker, "_positivity == '+'")
-#       })
-      
-#       neg_conditions <- lapply(negative_markers, function(marker) {
-#         marker <- gsub("[-,]", "", marker)
-#         paste0(marker, "_positivity == '-'")
-#       })
-      
-#       all_conditions <- c(conditions, neg_conditions)
-#       combined_conditions <- paste(all_conditions, collapse = " & ")
-#     }
-
-#     print("combined_conditions below")
-#     print(combined_conditions)
-    
-#     subset_df <- subset(df, subset = eval(parse(text = combined_conditions))) 
-    
-#     #  Assign phenotype to the filtered cells in the original dataset
-#     if (nrow(subset_df) > 0) {
-#       original_df[rownames(subset_df), 'phenotype'] <- phenotype_df[i, 'phenotype']
-#       original_df[, 'phenotype'] <- ifelse(is.na(original_df[, 'phenotype']), 'other', original_df[, 'phenotype'])
-#     }
-
-#     uploaded_df(original_df)
-#     nrow(subset_df)
-#   })
-
-#   # Find rows that don't satisfy any defined conditions and count them as 'other'
-#   other_count <- nrow(df) - sum(unlist(phenotype_counts))
-#   phenotype_counts <- c(phenotype_counts, other = other_count)
-  
-#   names(phenotype_counts) <- c(phenotype_df$phenotype, 'other')
-#   print(phenotype_counts)
-#   return(phenotype_counts)
-# }
-
-
-
-
-
-
-
-# observe({
-#   counts <- subsetAndCount(df_positivity, phenotype_df)
-#   print(counts)
-#   # Here 'counts' will contain the counts of rows for each defined phenotype
-# })
-
-# Subset rows where specific columns have values equal to "+"
-# subset_data <- subset(df, KRT14_positivity == "+" & CD207_positivity == "+" & SOX10_positivity == "+")
-
-
-    # Render the phenotype string when the Define Phenotype button is clicked
   observeEvent(input$define_phenotype, {
     if (input$define_phenotype > 0) {
       print(selected_markers_phenotype())
@@ -4650,9 +2870,6 @@ subsetAndCount <- function(df, phenotype_df) {
       print(output_text_phenotype)
 
 
-      # output$phenotype_output <- renderText({
-      #   return(output_text_phenotype)
-      # })
     }
       # Update the reactive dataframe with the defined phenotype
       # updatePhenotypeDF(phenotype)
@@ -4692,22 +2909,6 @@ subsetAndCount <- function(df, phenotype_df) {
           count = unlist(counts)
         )
 
-  #  barchart <- ggplot(bar_data, aes(x = phenotype, y = count, fill=phenotype)) +
-  #     geom_bar(stat = "identity", color = "black") +
-  #     labs(title = "Phenotype Counts", x = "Phenotype", y = "Count") +
-  #     theme_minimal() +
-  #     theme(axis.text.x = element_text(angle = 45, hjust = 1))
-        # Reshape data to wide format for stacked bar chart
-    # bar_data_wide <- spread(bar_data, key = phenotype, value = count)
-    
-    # barchart <- ggplot(bar_data_wide, aes(x = 1, y = value, fill = variable)) +
-    #   geom_col(position = "stack") +
-    #   labs(title = "Phenotype Composition", x = "", y = "Count") +
-    #   theme_minimal() +
-    #   scale_fill_brewer(palette = "Set3") +  # Use color palette
-    #   guides(fill = guide_legend(title = "Phenotype")) 
-
-          # Assuming 'bar_data' has 'phenotype' and 'count' columns
       total_counts <- sum(bar_data$count)
 
       # Calculate percentages
@@ -4727,18 +2928,6 @@ subsetAndCount <- function(df, phenotype_df) {
           legend.text  = element_text(size = 13),
           legend.title = element_text(size = 14)
         )
-        # barchart <- ggplot(bar_data, aes(x = phenotype, y = count, fill = phenotype)) +
-        # geom_col() 
-
-      # geom_bar(stat = "identity", position = "stack") +
-      # labs(title = "Phenotype Composition", x = "Phenotype", y = "Count") +
-      # theme_minimal() +
-      # theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-      # bar_data %>% pivot_longer(cols = !bar_data, names_to = "phenotype", values_to = "percentage") %>% 
-      #   ggplot(aes(fill = phenotype, x = bar_data, y = percentage)) + 
-      #   geom_bar(position = "stack", stat = "identity")
-
         population_cells <- uploaded_df()
         species <- population_cells$phenotype
 
@@ -4759,24 +2948,8 @@ subsetAndCount <- function(df, phenotype_df) {
 
         print(round(MLEP, 5))
 
-        # print(species)
-        # MLEestimate <- as.numeric(MLEp.bsci(as.numeric(species),rounds = 100, level = 0.99))
-
-        # print("MLEestimate")
-        # print(MLEestimate)
-
-
-
-
-
-  
-  
-
       output$pheno_bar <- renderPlot({
               barchart
-        #       bar_data %>% pivot_longer(cols = !bar_data, names_to = "phenotype", values_to = "percentage") %>% 
-        # ggplot(aes(fill = phenotype, x = bar_data, y = percentage)) + 
-        # geom_bar(position = "stack", stat = "identity")
             })
 
 
@@ -4787,65 +2960,6 @@ subsetAndCount <- function(df, phenotype_df) {
   })
 
 
-  #  observeEvent(input$define_phenotype_AUTO, {
-  #   # Load the phenotype indicators from the CSV file
-  #   phenotype_indicators <- phenotype_wfl_reactive()
-
-  #   df_positivity <- uploaded_df()
-
-  #   df_rules <- phenotype_wfl_reactive()
-
-  #         # Loop through rows in df_positivity
-  #     for (row in 1:nrow(df_positivity)) {
-  #       # # Extract the marker positivity for this row
-  #       # markers_positivity <- df_positivity[row]  # Exclude non-marker columns like imageid, CELLID
-  #       markers_positivity <- df_positivity[row]  # Exclude non-marker columns like imageid, CELLID
-
-        
-  #       # Loop through rows in df_rules (phenotype definitions)
-  #       for (i in 1:nrow(df_rules)) {
-  #         phenotype <- df_rules[i, ]
-
-  #         print(phenotype)
-          
-  #         # Filter markers based on the current phenotype's workflow
-  #         # markers <- relevant_markers
-          
-  #         # Check and apply the rules
-  #         if (phenotype$phenotype_workflow == "allpos" && all(markers_positivity[markers] == "+")) {
-  #           detected_phenotype <- phenotype$phenotype_name
-  #           print(detected_phenotype)
-  #           break
-  #         } else if (phenotype$phenotype_workflow == "allneg" && all(markers_positivity[markers] == "-")) {
-  #           detected_phenotype <- phenotype$phenotype_name
-  #           break
-  #         } else if (phenotype$phenotype_workflow == "anypos" && any(markers_positivity[markers] == "+")) {
-  #           detected_phenotype <- phenotype$phenotype_name
-  #           break
-  #         } else if (phenotype$phenotype_workflow == "anyneg" && any(markers_positivity[markers] == "-")) {
-  #           detected_phenotype <- phenotype$phenotype_name
-  #           break
-  #         } else if (phenotype$phenotype_workflow == "pos" && any(markers_positivity[markers] == "+")) {
-  #           detected_phenotype <- phenotype$phenotype_name
-  #           break
-  #         } else if (phenotype$phenotype_workflow == "neg" && any(markers_positivity[markers] == "-")) {
-  #           detected_phenotype <- phenotype$phenotype_name
-  #           break
-  #         }
-  #       }
-        
-  #       # Assign the detected phenotype to the corresponding row in df_positivity
-  #       df_positivity[row, "Phenotype"] <- ifelse(is.null(detected_phenotype), "other", detected_phenotype)
-  #     }
-
-
-  #     uploaded_df(df_positivity)
-    
-  # })
-
-
-     
-   # Update Phenotype Table when the file is uploaded
   observeEvent(input$phen_wfl, {
     inFile <- input$phen_wfl
 
@@ -4867,10 +2981,6 @@ subsetAndCount <- function(df, phenotype_df) {
   )
  
 
-
-
-
-  
 # In the UI, use conditionalPanel to conditionally render the plot
 conditionalPanel(
   condition = "input.patient_number_plot2.length > 0",
@@ -4881,7 +2991,6 @@ conditionalPanel(
   condition = "input.patient_number_plot2.length > 0",
   plotlyOutput("plot3")
 )  
-
 
 
       })
