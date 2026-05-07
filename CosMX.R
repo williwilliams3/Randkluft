@@ -8,26 +8,26 @@ library(gridExtra)
 library(matrixStats)
 library(patchwork)
 library(pheatmap)
-library(Seurat)
+# library(Seurat)  # removed: package unavailable for deployment
 library(RColorBrewer)
 library(reshape2)
 
-if(!require(devtools)) install.packages("devtools")
-devtools::install_github("kassambara/ggpubr")
+# if(!require(devtools)) install.packages("devtools")  # removed: auto-install not suitable for deployment
+# devtools::install_github("kassambara/ggpubr")  # removed: auto-install not suitable for deployment
 
-if (!require("tiledb", quietly = TRUE))
-  remotes::install_github("TileDB-Inc/TileDB-R", force = TRUE, 
-                          ref = "0.17.0")
+# if (!require("tiledb", quietly = TRUE))  # removed: auto-install not suitable for deployment
+#   remotes::install_github("TileDB-Inc/TileDB-R", force = TRUE,   # removed: auto-install not suitable for deployment
+#                           ref = "0.17.0")  # removed: continuation of commented call
 
-if (!require("tiledbsc", quietly = TRUE))
-  remotes::install_github("tiledb-inc/tiledbsc", force = TRUE, 
-                          ref = "8157b7d54398b1f957832f37fff0b173d355530e")
+# if (!require("tiledbsc", quietly = TRUE))  # removed: auto-install not suitable for deployment
+#   remotes::install_github("tiledb-inc/tiledbsc", force = TRUE,   # removed: auto-install not suitable for deployment
+#                           ref = "8157b7d54398b1f957832f37fff0b173d355530e")  # removed: continuation of commented call
 
-library(tiledb)
-library(tiledbsc)
+# library(tiledb)  # removed: package unavailable for deployment
+# library(tiledbsc)  # removed: package unavailable for deployment
 
 
-tiledbURI <- "/Users/aliamiryousefi/Desktop/a7dbe561-8db0-468e-8b3f-6df996bba91a_TileDB/"
+# tiledbURI <- "/Users/aliamiryousefi/Desktop/a7dbe561-8db0-468e-8b3f-6df996bba91a_TileDB/"  # removed: hardcoded local path
 tiledb_scdataset <- tiledbsc::SOMACollection$new(uri = tiledbURI, 
                                                  verbose = FALSE)
 counts <- tiledb_scdataset$somas$RNA$X$members$counts$to_matrix(batch_mode = TRUE) 
