@@ -82,7 +82,7 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
       style = "color:black;"
     )
   ),
-  
+
   tags$div(
     id = "tool",
     tabsetPanel(
@@ -91,7 +91,7 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
         br(),
         tags$div(includeMarkdown("./documents/home.md"), style = "max-width:800px;")
       ),
-      
+
       tabPanel(
         strong("Randkluft"),
         br(),
@@ -99,15 +99,15 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
           # Sidebar with a slider input
           sidebarPanel(width = 4, br(),
                        tabsetPanel(
-                        
+
                          tabPanel(
                           value=1,
                            strong("Upload file"),
                            br(),
-                           
+
                           #  p("Please provide your .csv cell-marker table."),
 
-                          p("Please upload a .csv file with cell-marker data following the format described in",  
+                          p("Please upload a .csv file with cell-marker data following the format described in",
                                                    strong("Help,"), "
                                         or download the example data set found in",
                                                    downloadLink('download_example_data', strong(' here.') )
@@ -119,17 +119,17 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
                           #  ),
 
                            fluidRow(
-                              column(width = 8, 
-                                    div(id = "file_input_div", 
+                              column(width = 8,
+                                    div(id = "file_input_div",
                                         fileInput("cell_file", label = "Upload a CSV file", accept = ".csv", buttonLabel = "Browse"))),
                                         tags$div(id = "message_loading_data", style = "font-size: 20px; position: fixed; bottom: 0; right: calc(5% + 10px);"),
 
                               column(width = 4, actionButton("remove_file", "Remove", icon = icon("trash")))
                             ),
-                            
+
 
                          ),
-                         
+
 
                          tabPanel(strong("Randkluft"),
                           value=3,
@@ -138,7 +138,7 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
                           value=1,
                            strong("Essential"),
                            br(),
-                        
+
                           #  column(
                           #    width = 4, actionButton("remove_file", "Remove", icon = icon("trash"))
                           #  )),
@@ -149,20 +149,16 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
 
                           br(),
                           br(),
-                         
+
                            checkboxGroupInput("selected_columns", "Select Markers", choices = NULL, selected = NULL),
-
-                           checkboxGroupInput("unique_patients_gating", "Select Patients", choices = NULL, selected = NULL),
-
-
-                                                                             br(),
+                           br(),
 
 
-                           materialSwitch(inputId = "gen_hist_plots_on_off", 
+                           materialSwitch(inputId = "gen_hist_plots_on_off",
                                                                        label = "Show gates",
                                                                        status = "danger",
                                                                        right=TRUE,
-                                                                       value = FALSE ),
+                                                                       value = TRUE ),
 
 
                           # Add the progress bar div element here
@@ -176,28 +172,28 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
                           p('Click button to download current set of plots that are displayed.'),
                           downloadButton(outputId = "downloadcurrent", label = "Download Current Plot"),
 
-                          p('Click button to download pdf file of plots for all selected markers and patients.'),
+                          p('Click button to download pdf file of plots for all selected markers.'),
                           downloadButton(outputId = "downloadall", label = "Download All Plots")
 
 
-                             ), 
-                             
-                             
+                             ),
+
+
                               tabPanel(
                           value=2,
 
                            strong("Bivariate"),
                            br(),
-                           
+
                              varSelectInput("xvar", "X variable", NULL, selected = NULL),
                              varSelectInput("yvar", "Y variable", NULL, selected = NULL),
 
-                            radioButtons(
-                              "patient_number_plot2",
-                              "Select Patients",
-                              choices = character(0),
-                              selected = character(0)
-                            ),
+                             p('Click button to download the current bivariate plot.'),
+                             downloadButton(outputId = "download_bivariate_current", label = "Download Current Plot"),
+
+                             p('Click button to download bivariate plots for all selected marker pairs.'),
+                             downloadButton(outputId = "download_bivariate_all", label = "Download All Plots"),
+
                              hr(),
                          ),
 
@@ -206,18 +202,12 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
 
                            strong("Trivariate"),
                            br(),
-                           
+
                              varSelectInput("xvarTri", "X variable", NULL, selected = NULL),
                              varSelectInput("yvarTri", "Y variable", NULL, selected = NULL),
                             varSelectInput("zvar", "Z variable", NULL, selected = NULL),
 
 
-                            radioButtons(
-                              "trivar_patient",
-                              "Select Patients",
-                              choices = character(0),
-                              selected = character(0)
-                            ),
                              hr(),
                          )
                              )
@@ -231,31 +221,31 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
                           value=1,
                            strong("Phenotyping"),
                             br(),
-                           
+
                           #  p("Please provide your .csv cell-marker table."),
 
-                          p("Please upload your phenotyping workflow following the format described in",  
+                          p("Please upload your phenotyping workflow following the format described in",
                                                    strong("Help,"), "
                                         or download the example workflow found in",
                                                    downloadLink('download_example_data2', strong(' here.') )
                                                  ),
 
                            fluidRow(
-                              column(width = 8, 
-                                    div(id = "file_input_div2", 
+                              column(width = 8,
+                                    div(id = "file_input_div2",
                                         fileInput("phen_wfl", label = "Upload a CSV file", accept = ".csv", buttonLabel = "Browse"))),
                                         tags$div(id = "message_loading_data2", style = "font-size: 20px; position: fixed; bottom: 0; right: calc(5% + 10px);"),
-                                        br(),  
+                                        br(),
                               column(width = 4, actionButton("remove_file2", "Remove", icon = icon("trash")))
                             ),
-                            
+
 
                           actionButton("define_phenotype_AUTO", "Phenotype my data"),
                           br(),
                           br(),
 
                           uiOutput("marker_checkboxes"),
-                          materialSwitch(inputId = "any_indicator", 
+                          materialSwitch(inputId = "any_indicator",
                                                             label = "Any positive",
                                                             status = "info",
                                                             right= TRUE,
@@ -273,14 +263,14 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
 
                         )
 
-                        
+
                         )
-                        
-                        
+
+
                         ),
                     id = "sidebartab"
                        )),
-          
+
 
                      mainPanel(width=8,
 
@@ -290,7 +280,7 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
               br(),
               numericInput('intercept', 'Type Gate Value', value = ""),
               actionButton(inputId = "updateGates", label = "Update Gate"),
-               
+
 
               conditionalPanel(
                 condition = "input.intercept == ''",
@@ -300,25 +290,14 @@ tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/aja
                 )
               ),
 
-        # plotOutput("gated_histogram_on_page"), 
+        # plotOutput("gated_histogram_on_page"),
         plotOutput("gated_histogram_on_page", height = "1000px", width = "1000px"),
 
          # Pagination buttons
-        # actionButton(inputId = "nextPatient", label = "Next Patient"),
-        div(
-  class = "pagination-button",
-  actionButton(inputId = "nextPatient", label = "Next Patient ", icon("arrow-right"))
-),
-
-div(
-  class = "pagination-button-back",
-  actionButton(inputId = "prevPatient", label = "Previous Patient ", icon("arrow-left"))
-),
-
-div(
-  class = "pagination-button",
-  actionButton(inputId = "nextMarker", label = "Next Marker ", icon("arrow-right"))
-),
+	div(
+	  class = "pagination-button",
+	  actionButton(inputId = "nextMarker", label = "Next Marker ", icon("arrow-right"))
+	),
 
 div(
   class = "pagination-button-back",
@@ -327,7 +306,7 @@ div(
 
 
       ),
-  
+
       conditionalPanel(
         condition = "input.sidebartab == 3 && input.sidebar2 == 2",
         # Add numeric input fields and a button
@@ -356,7 +335,7 @@ div(
         plotlyOutput("image_garage_output", height = "1000px", width = "1000px"),
 
         verbatimTextOutput("subset_summary")
-      ), 
+      ),
        conditionalPanel(
         condition = "input.sidebartab == 2 && input.sidebar1 == 2",
         plotOutput("tissue_score_out"),
@@ -368,46 +347,46 @@ div(
         plotlyOutput("quality_gauge"),
         # plotlyOutput("quality_gauge_kl")
 
-      ), 
+      ),
 
 
        conditionalPanel(
         condition = "input.sidebartab == 4 && input.sidebar_post == 1",
         # textOutput("phenotype_output"),
               # Create two sections: Left and Right
-              
+
                 column(width = 6, tableOutput("phenotypeTable")),
                 column(width = 6, plotOutput("pheno_bar", height = "500px", width = "500px")),
-            
+
               verbatimTextOutput("post_statistics"),
 
-            
+
       # tableOutput("phenotypeTable")# Add your table output here
 
-      ), 
+      ),
 
 
       conditionalPanel(
         condition = "input.sidebartab == 4 && input.sidebar_post == 2",
         plotOutput("icaAnalysis2"),
-      ), 
+      ),
 
 
        conditionalPanel(
         condition = "input.sidebartab == 4 && input.sidebar_post == 0",
         # plotOutput("icaAnalysis"),
-      ), 
+      ),
 
 
     ),
-                     
-  
-        )
-        
-        
+
+
         )
 
-          
+
+        )
+
+
       ),
       tabPanel(
         strong("Help"),
@@ -424,40 +403,40 @@ div(
           h4(strong("Q:"), tags$em(strong(
             "Why are some proportions or total sample numbers zero?"
           ))),
-          p(strong("A:"), 
-            "Randkluft searches for a positively skewed signal emerging from background noise. 
-  In cases where the marker distribution is already negatively skewed or lacks a discernible positive tail, 
-  the algorithm terminates early without estimating a gate. 
+          p(strong("A:"),
+            "Randkluft searches for a positively skewed signal emerging from background noise.
+  In cases where the marker distribution is already negatively skewed or lacks a discernible positive tail,
+  the algorithm terminates early without estimating a gate.
   In these situations, we recommend visual inspection of the distribution and manual gating."
           ),
           br(),
-          
+
           h4(strong("Q:"), tags$em(strong(
             "Why do I get 'Disconnected from the server' after uploading my data?"
           ))),
-          p(strong("A:"), 
-            "This typically indicates that the uploaded file does not conform to the expected input format. 
-  Please consult the Help section and ensure that column names, data types, and required fields 
+          p(strong("A:"),
+            "This typically indicates that the uploaded file does not conform to the expected input format.
+  Please consult the Help section and ensure that column names, data types, and required fields
   strictly follow the documented input structure before re-uploading."
           ),
           br(),
-          
+
           h4(strong("Q:"), tags$em(strong(
             "Why are upload and analysis slow?"
           ))),
-          p(strong("A:"), 
-            "Randkluft treats all numeric columns—including spatial coordinates and DNA/Hoechst channels—as potential gating targets. 
-  If your input file contains many columns that are not required for analysis, removing them before upload 
+          p(strong("A:"),
+            "Randkluft treats all numeric columns—including spatial coordinates and DNA/Hoechst channels—as potential gating targets.
+  If your input file contains many columns that are not required for analysis, removing them before upload
   can significantly improve performance and reduce processing overhead."
           ),
           br(),
-          
+
           h4(strong("Q:"), tags$em(strong(
             "Which data are used to detect the gates?"
           ))),
-          p(strong("A:"), 
-            "At each step of the workflow, Randkluft internally stores the active dataset associated with the selected panel. 
-  All subsequent analyses use this updated data. 
+          p(strong("A:"),
+            "At each step of the workflow, Randkluft internally stores the active dataset associated with the selected panel.
+  All subsequent analyses use this updated data.
   Both the modified datasets and the resulting gate estimates can be downloaded at each stage of the analysis."
           ),
           br()
@@ -492,16 +471,16 @@ server <- shinyServer(function(input, output, session) {
   outputinterceptreactive <- reactiveVal(NULL)
 
   plot_gating_individual <- function(target, output, marker, GroundTruthInput, do_ggplot = TRUE) {
-    
+
     if (!is.null(outputinterceptreactive())) {
       output$cutoff <- outputinterceptreactive()
       output$N_removed <- sum(target > output$cutoff)
       output$percentage_removed <- round(output$N_removed / length(target), 3)
-    } 
-    
+    }
+
     print("mode is here")
     print(find_mode2(target))
-    
+
     if (do_ggplot == TRUE) {
       plot <- ggplot(data.frame(x = target), aes(x = x)) +
         geom_histogram(aes(y = after_stat(density)), bins = 100,
@@ -520,10 +499,10 @@ server <- shinyServer(function(input, output, session) {
           x = "",
           y = "",
           title = paste(
-            "N+=", output$N_removed, 
-            " ", 
+            "N+=", output$N_removed,
+            " ",
             "+R=", round(output$percentage_removed, 3),
-            " ", 
+            " ",
             "Gate=", round(output$cutoff, 2)
           )
         ) +
@@ -538,29 +517,29 @@ server <- shinyServer(function(input, output, session) {
         plot <- plot + geom_vline(xintercept = GroundTruthInput, color = "blue")
       }
       return(plot)
-    } 
+    }
   }
-  
+
   plot_gating_grid <- function(df, unique_ids, column_indices) {
     plot_list <- list()
-    
+
     names_columns <- names(df)
     n_plots_per_row <- length(column_indices)  # Adjust this as needed
     n_plots <- length(unique_ids) * length(column_indices)
     n_rows <- ceiling(n_plots / n_plots_per_row)
-    
+
     print(n_rows)
     print(n_plots)
     print(n_plots_per_row)
-    
+
     for (unique_id in unique_ids) {
       par(mfrow = c(5, 4), mar = c(5.1, 3, 4.1, 2))
-      
+
       for (j in column_indices) {
         target <- df[df$imageid == unique_id, j]
         target <- remove_outliers2(target)
         target <- target[!is.infinite(target)]
-        
+
         marker <- paste0(c(unique_id, names_columns[j]), collapse = "; ")
         output <- skew_gate(target, 0.01)
         gtGate <- ground_truth_gates_loaded$Gate[ground_truth_gates_loaded$Patient == unique_id & ground_truth_gates_loaded$Marker == names_columns[j]]
@@ -568,11 +547,11 @@ server <- shinyServer(function(input, output, session) {
         plot_list <- c(plot_list, list(p_temp))
       }
     }
-    
+
     p <- gridExtra::grid.arrange(grobs = plot_list, ncol = n_plots_per_row, nrow = n_rows)
     return(p)
   }
-  
+
 
 observeEvent(input$updateGates, {
   # Get the new gate value from the numeric input
@@ -594,7 +573,7 @@ observeEvent(input$updateGates, {
   # observer tries to open a system graphics device and fails on servers).
 
   selected_columns_man <- input$selected_columns
-  selected_patients_man <- input$unique_patients_gating
+  selected_patients_man <- unique_patients_gating()
 
   chosen_patient <- selected_patients_man[current_patient()]
   chosen_marker  <- selected_columns_man[current_marker()]
@@ -606,6 +585,7 @@ observeEvent(input$updateGates, {
       updated_df$Patient == chosen_patient
     ] <- new_gate_value
     csv_save_file_path(updated_df)
+    resultdf_reactive(updated_df)
   }
 
 })
@@ -642,7 +622,7 @@ plot_gating_grid_pdf_all = function(df, unique_ids, column_names) {
 
     marker <- paste0(c(unique_id, names_columns[j]), collapse = "; ")
     output <- skew_gate(target, 0.01)
-    
+
     p_temp = plot_gating_individual(target, output, marker)
     plot_list = c(plot_list, list(p_temp))
   }
@@ -650,7 +630,7 @@ plot_gating_grid_pdf_all = function(df, unique_ids, column_names) {
 
   # Limit the number of plots to a maximum of 180
   # plot_list <- plot_list[1:min(length(plot_list), 1)]
-  
+
   # p = gridExtra::grid.arrange(grobs = plot_list, ncol = n_plots_per_row, nrow= n_rows)
   p = gridExtra::grid.arrange(grobs = plot_list)
 
@@ -659,12 +639,12 @@ plot_gating_grid_pdf_all = function(df, unique_ids, column_names) {
 
   skew_gate <- function(x, alpha=0.01) {
     sk <- moments::skewness(x)
-    
+
     n <- length(x)
     a <- locmodes(x)$locations[1]
-    
+
     b <- max(x)
-    
+
     if (sk < 0) {
       message("The skewness is negative!")
 
@@ -686,7 +666,7 @@ plot_gating_grid_pdf_all = function(df, unique_ids, column_names) {
     }
 
     iteration <- 0
-    
+
     while (abs(sk) > alpha & iteration <= 100) {
       if (sk >= 0) {
         b <- a + (b - a) / 2
@@ -695,7 +675,7 @@ plot_gating_grid_pdf_all = function(df, unique_ids, column_names) {
       }
       a <- min(a, b)
       b <- max(a, b)
-      
+
       sk <- skewness(x[which(x < b)])
       if (is.nan(sk)) {
         message("Warning: skewness is NaN")
@@ -703,7 +683,7 @@ plot_gating_grid_pdf_all = function(df, unique_ids, column_names) {
       }
       iteration <- iteration + 1
     }
-    
+
     n_removed <- sum(x > b)
     perc_removed <- round(n_removed / n, 3)
 
@@ -719,7 +699,7 @@ plot_gating_grid_pdf_all = function(df, unique_ids, column_names) {
     )
   }
 
-  
+
   get_gates_csv <- function(dataframe, csv_save_file_path) {
 
 
@@ -816,7 +796,7 @@ return(results_df)
       # Subset data for the current imageid and marker
       subset_data <- data[data$imageid == imageid, c("imageid", marker)]
 
-    
+
       # Calculate gate value using skew_gate function
       result_to_plot <- skew_gate(subset_data[[marker]])  # Replace with your desired alpha
       skewness_value <- result_to_plot$skewness
@@ -824,7 +804,7 @@ return(results_df)
 
        # Append row to results_df
       results_df <- rbind(results_df, data.frame(Patient = imageid, Marker = marker, Gate = cutoff_value))
-      
+
       cat("Image ID:", imageid, "Marker:", marker, "Result:", cutoff_value, "\n")
     }}
 
@@ -833,10 +813,10 @@ return(results_df)
 
 
   }
-  
-  
+
+
   shinyjs::hide("patient_number")
-  
+
   observe({
 
     req(uploaded_df())
@@ -858,12 +838,9 @@ return(results_df)
     # Show the checkboxGroupInput
     shinyjs::show("selected_columns")
 
-    # Show the checkboxGroupInput
-    shinyjs::show("unique_patients_gating")
-    
     # Define the column names you want to exclude
-    columns_to_exclude <- c("imageid", "phenotype", "ROI_major_category", "CellID", "X", "Y", "DNA2", "Hoechst1", "Hoechst2", "Hoechst3", 
-                            "Hoechst4", "Hoechst5", "Hoechst6", "Hoechst7", "Hoechst8", "Hoechst9", "Hoechst10", "Hoechst_1", "Hoechst_2", "Hoechst_3", 
+    columns_to_exclude <- c("imageid", "phenotype", "ROI_major_category", "CellID", "Cell", "Row", "X", "Y", "DNA2", "Hoechst1", "Hoechst2", "Hoechst3",
+                            "Hoechst4", "Hoechst5", "Hoechst6", "Hoechst7", "Hoechst8", "Hoechst9", "Hoechst10", "Hoechst_1", "Hoechst_2", "Hoechst_3",
                             "Hoechst_4", "Hoechst_5", "Hoechst_6", "Hoechst_7", "Hoechst_8", "Hoechst_9", "Hoechst_10", "DAPI1", "DAPI2", "DAPI3", "DAPI4", "DAPI5", "DAPI6", "DAPI7", "DAPI8", "DAPI9", "DAPI10",
                             "DAPI_1", "DAPI_2", "DAPI_3", "DAPI_4", "DAPI_5", "DAPI_6", "DAPI_7", "DAPI_8", "DAPI_9", "DAPI_10", "DNA1", "DNA3", "DNA2", "DNA4", "DNA5", "DNA6","DNA7","DNA8", "DNA9", "DNA10", "DNA11",
                             "DNA12", "DNA13", "DNA_1", "DNA_3", "DNA_2", "DNA_4", "DNA_5", "DNA_6","DNA_7","DNA_8", "DNA_9", "DNA_10", "DNA_11",
@@ -895,9 +872,6 @@ return(results_df)
 
     updateCheckboxGroupInput(session, "selected_columns", choices = column_names, selected = column_names)
     updateCheckboxGroupInput(session, "selected_columns_phenotyping", choices = column_names, selected = column_names)
-    updateCheckboxGroupInput(session, "unique_patients_gating", choices = unique_patients(), selected = unique_patients())
-
-
     runjs("document.getElementById('message_loading_data').style.display = 'none';")
 
   })
@@ -913,7 +887,7 @@ return(results_df)
   gmm_gate_switch <- reactiveVal(TRUE)  # Initialize with the desired default value
   # You can set the initial value based on the user's preference or the default value
 
-  histplot_gate_switch <- reactiveVal(FALSE)  # Initialize with the desired default value
+  histplot_gate_switch <- reactiveVal(TRUE)  # Initialize with the desired default value
   # You can set the initial value based on the user's preference or the default value
 
   # Observe the change in the GMM gate switch input and update the reactive value
@@ -935,19 +909,15 @@ return(results_df)
 
      # Hide the checkboxGroupInput
     shinyjs::hide("selected_columns")
-    shinyjs::hide("unique_patients_gating")
-
     shinyjs::hide("gated_histogram_on_page")
     shinyjs::hide("patient_number")
-    shinyjs::hide("patient_number_plot2")
     shinyjs::hide("histogram_plot")
-    shinyjs::reset("patient_number_plot2")
 
     shinyjs::hide("summary_output")
     shinyjs::hide("image_garage_output")
     shinyjs::hide("selected_columns_phenotyping")
 
-  
+
     updateSelectInput(session, "yvar", choices = character(0), selected = character(0))
     updateSelectInput(session, "xvar", choices = character(0), selected = character(0))
     updateSelectInput(session, "marker", choices = character(0), selected = character(0))
@@ -967,8 +937,8 @@ sub_data_logged <- reactiveVal(NULL)
     progress$set(message = "Processing File...")
     seq_length = ceiling(seq.int(from = 2, to = nrows-2,length.out = no_batches+1))
     seq_length = seq_length[-length(seq_length)]
-  
-    
+
+
     for(i in seq_along(seq_length)){
       progress$set(value = i)
       if(i == no_batches) chunk_size = -1 else chunk_size = seq_length[i+1] - seq_length[i]
@@ -987,18 +957,29 @@ sub_data_logged <- reactiveVal(NULL)
 
 
     n_rows = length(count.fields(input$cell_file$datapath))
-    
+    csv_columns <- names(read.csv(input$cell_file$datapath, nrows = 0, check.names = FALSE))
+
 
     # df_out = read_batch_with_progress(input$file1$datapath,n_rows,10)
     # Generate a sample of 10 numbers from 1 to 20 without replacement
-    if (n_rows > 70000){
-    sample_numbers <- sample(1:n_rows, 70000, replace = FALSE)}
-    else{sample_numbers <- seq(1:n_rows)}
-    # Create the SQL query string
-    query <- sprintf("SELECT * FROM file WHERE CellID IN (%s)", paste(sample_numbers, collapse = ", ")) #the first row should be called CellID
-    uploaded_df(read.csv.sql(input$cell_file$datapath, sql = query, dbname = tempfile()))
-    
-    
+    if (n_rows > 70000) {
+      sample_numbers <- sample(1:n_rows, 70000, replace = FALSE)
+    } else {
+      sample_numbers <- seq(1:n_rows)
+    }
+    if ("CellID" %in% csv_columns) {
+      # Create the SQL query string
+      query <- sprintf("SELECT * FROM file WHERE CellID IN (%s)", paste(sample_numbers, collapse = ", ")) #the first row should be called CellID
+      uploaded_df(read.csv.sql(input$cell_file$datapath, sql = query, dbname = tempfile()))
+    } else {
+      uploaded_intermediate <- read.csv(input$cell_file$datapath, header = TRUE, check.names = FALSE)
+      if (nrow(uploaded_intermediate) > 70000) {
+        uploaded_intermediate <- uploaded_intermediate[sample(seq_len(nrow(uploaded_intermediate)), 70000), , drop = FALSE]
+      }
+      uploaded_df(uploaded_intermediate)
+    }
+
+
     # uploaded_df(read.csv(input$cell_file$datapath, header = TRUE, check.names=FALSE))
 
     # uploaded_df(read(input$cell_file$datapath))
@@ -1034,7 +1015,7 @@ sub_data_logged <- reactiveVal(NULL)
 
     print(colnames(uploaded_df()))
     # Define the column names you want to exclude
-    columns_to_exclude <- c("imageid", "phenotype", "ROI_major_category", "CellID", "X", "Y", "ROI_minor_category", "phenotype_v2", "X_centroid", "Y_centroid", "Eccentricity", "Area", "MajorAxisLength",
+    columns_to_exclude <- c("imageid", "phenotype", "ROI_major_category", "CellID", "Cell", "Row", "X", "Y", "ROI_minor_category", "phenotype_v2", "X_centroid", "Y_centroid", "Eccentricity", "Area", "MajorAxisLength",
     "MinorAxisLength", "Extent", "Solidity", "Orientation", "", "DNA6a")  # List the columns to exclude
     column_names <- setdiff(names(uploaded_df()), columns_to_exclude)
 
@@ -1045,7 +1026,7 @@ sub_data_logged <- reactiveVal(NULL)
     max_values <- sapply(uploaded_df()[column_names], max)
     print("post")
 
-  
+
     uploaded_intermediate <- uploaded_df()
     uploaded_intermediate[column_names] <- sapply(uploaded_intermediate[column_names], as.numeric)
     uploaded_intermediate[column_names] <- data.frame(lapply(uploaded_intermediate[column_names], function(x) ifelse(x >= 0 & x < 10, 10, x)))
@@ -1059,12 +1040,10 @@ sub_data_logged <- reactiveVal(NULL)
       }
 
       print("crash")
-      
 
-      if (!"imageid" %in% colnames(uploaded_df())) {
-        uploaded_intermediate$imageid <- rep("image", nrow(uploaded_df()))
-        uploaded_df(uploaded_intermediate)
-      }
+
+      uploaded_intermediate$imageid <- rep("sample", nrow(uploaded_intermediate))
+      uploaded_df(uploaded_intermediate)
       if (any(c("DNA1", "DNA_1", "DAPI1", "DAPI_1", "Hoechst1", "Hoechst_1") %in% colnames(uploaded_df()))) {
         uploaded_intermediate$DNA1 <- rep(1, nrow(uploaded_df()))
         uploaded_df(uploaded_intermediate)
@@ -1076,12 +1055,24 @@ sub_data_logged <- reactiveVal(NULL)
       }
 
 
-        if ("Y" %in% colnames(uploaded_df())) {
+      if ("Y" %in% colnames(uploaded_df())) {
         colnames(uploaded_intermediate)[which(names(uploaded_intermediate) == "Y")] <- "Y_centroid"
         uploaded_df(uploaded_intermediate)
-        }
+      }
 
-     
+      if (!"X_centroid" %in% colnames(uploaded_intermediate)) {
+        grid_width <- max(1, ceiling(sqrt(nrow(uploaded_intermediate))))
+        uploaded_intermediate$X_centroid <- ((seq_len(nrow(uploaded_intermediate)) - 1) %% grid_width) + 1
+        uploaded_df(uploaded_intermediate)
+      }
+
+      if (!"Y_centroid" %in% colnames(uploaded_intermediate)) {
+        grid_width <- max(1, ceiling(sqrt(nrow(uploaded_intermediate))))
+        uploaded_intermediate$Y_centroid <- ((seq_len(nrow(uploaded_intermediate)) - 1) %/% grid_width) + 1
+        uploaded_df(uploaded_intermediate)
+      }
+
+
           print("DONE LOADING CSV FINAL after POST")
 
 
@@ -1092,12 +1083,11 @@ sub_data_logged <- reactiveVal(NULL)
 
     # Show the checkboxGroupInput
     shinyjs::show("selected_columns")
-    shinyjs::show("unique_patients_gating")
-        shinyjs::show("selected_columns_phenotyping")
+    shinyjs::show("selected_columns_phenotyping")
 
 
   })
-  
+
 
   pdf_file_path <- reactiveVal(NULL)
   csv_save_file_path <- reactiveVal(NULL)
@@ -1116,7 +1106,7 @@ sub_data_logged <- reactiveVal(NULL)
 
     selcol_len = length(selected_columns)
 
-    unique_patients <- input$unique_patients_gating  # Assuming this function returns unique image IDs
+    unique_patients <- unique_patients_gating()
 
     print(unique_patients)
 
@@ -1136,8 +1126,8 @@ sub_data_logged <- reactiveVal(NULL)
     csv_save_file_name <- "temp_gates.csv"  # Get user-provided file name
 
     # Show the progress bar
-    
-    
+
+
     if (length(selected_columns)==1){
       print("hi")
       print(colnames(sub_data))
@@ -1145,12 +1135,12 @@ sub_data_logged <- reactiveVal(NULL)
     }
     else {
       resultdf_to_save = get_gates_csv(sub_data, csv_save_file_name)
-      resultdf_reactive(resultdf_to_save)
     }
+    resultdf_reactive(resultdf_to_save)
 
 
     print(resultdf_to_save)
-    
+
     csv_save_file_path(resultdf_to_save)
 
       dataframe_pos <- uploaded_df()
@@ -1166,7 +1156,7 @@ sub_data_logged <- reactiveVal(NULL)
         resultdf_reactive()$Patient == chosen_patient
       ]
 
-      
+
       # Add marker_positivity column based on the marker and its gate value
       dataframe_pos[[paste0(marker_col, "_positivity")]] <- sapply(dataframe_pos[[marker_col]], determine_positivity, gate_value)
     }
@@ -1178,10 +1168,10 @@ sub_data_logged <- reactiveVal(NULL)
     print(unique(dataframe_pos$ELANE_positivity))
 
     uploaded_df(dataframe_pos)
-      
+
 
     shinyjs::show("gated_histogram_on_page")
-    
+
 
     # Hide the progress bar when the task is complete
 
@@ -1211,30 +1201,6 @@ current_patient <- reactiveVal(1)
 
 current_4panel <- reactiveValues(p1=NULL,p2=NULL,p3=NULL, p4=NULL)
 
-observeEvent(input$nextPatient, {
-
-  outputinterceptreactive(NULL)
-
-  
-  observe({
-  updateNumericInput(session, "intercept", value = '')
-})
-  current_patient((current_patient() %% length(unique_patients_gating())) + 1)
-})
-
-observeEvent(input$prevPatient, {
- 
-   outputinterceptreactive(NULL)
-
-
-    observe({
-  updateNumericInput(session, "intercept", value = '')
-})
-
-
-  current_patient(ifelse(current_patient() == 1, length(unique_patients_gating()), current_patient() - 1))
-})
-
 # Define a reactiveVal to store the user-defined intercept value
 user_defined_intercept <- reactiveVal(NULL)
 
@@ -1242,7 +1208,7 @@ observeEvent(input$nextMarker, {
 
   outputinterceptreactive(NULL)
 
-  updateNumericInput(session, "intercept", value = '') 
+  updateNumericInput(session, "intercept", value = '')
 
   current_marker((current_marker() %% length(selected_columns())) + 1)
 })
@@ -1252,7 +1218,7 @@ observeEvent(input$prevMarker, {
 
     outputinterceptreactive(NULL)
 
- 
+
       observe({
   updateNumericInput(session, "intercept", value = '')
 })
@@ -1273,7 +1239,7 @@ observeEvent(input$prevMarker, {
   # Always register at server level so reactive to outputinterceptreactive()
   # at all times; visibility is controlled by the toggle below.
   output$gated_histogram_on_page <- renderPlot({
-    req(uploaded_df(), histplot_gate_switch())
+    req(uploaded_df(), resultdf_reactive(), histplot_gate_switch())
     generatePlot()
   })
 
@@ -1304,14 +1270,14 @@ observeEvent(input$prevMarker, {
     ")
 
     df <- uploaded_df()
-  
+
  # Get the column indices for the selected columns
     column_indices <- sapply(selected_columns(), function(col_name) {
       which(names(df) == col_name)
     })
 
     unique_imageids <- unique(df$imageid)
-    
+
     selected_patients_reactively <- unique_patients_gating()
 
     plot_list <- list()  # Create a list to store plots
@@ -1332,16 +1298,16 @@ observeEvent(input$prevMarker, {
     histogram_plot <- plot_gating_grid(df, selected_patients_reactively[current_patient()], column_indices[current_marker()])
 
       selected_columns_man <- input$selected_columns
-      selected_patients_man <- input$unique_patients_gating
+      selected_patients_man <- unique_patients_gating()
 
           filtered_data <- uploaded_df() %>%
     filter(imageid %in% selected_patients_man[current_patient()]) %>%
     select(imageid, all_of(selected_columns_man[current_marker()]))
-          
+
     filtered_data_xy <- uploaded_df() %>%
-    filter(imageid %in% selected_patients_man[current_patient()]) 
-    
- 
+    filter(imageid %in% selected_patients_man[current_patient()])
+
+
 chosen_patient <- selected_patients_man[current_patient()]
 chosen_marker <- selected_columns_man[current_marker()]
 digrepresentation <- ggplot(filtered_data_xy, aes(x = X_centroid, y = Y_centroid, color = filtered_data_xy[[chosen_marker]])) +
@@ -1356,7 +1322,7 @@ digrepresentation <- ggplot(filtered_data_xy, aes(x = X_centroid, y = Y_centroid
         axis.text = element_text(size = 14, family = "Arial")) +
   xlab("X Centroid") +
   ylab("Y Centroid") +
-  labs(title = 'Digital Representation') 
+  labs(title = 'Digital Representation')
 
 gate_value <- resultdf_reactive()$Gate[
   resultdf_reactive()$Marker == chosen_marker &
@@ -1395,7 +1361,7 @@ contour_plot <- ggplot(filtered_data_xy, aes(x = X_centroid, y = Y_centroid)) +
     legend.key.width  = unit(6, "pt"),
     legend.title = element_text(size = 10),
     legend.text  = element_text(size = 9),
-    
+
     plot.title = element_text(face = "bold", hjust = 0.5, size = 18, family = "Arial"),
     axis.title = element_text(size = 16, family = "Arial"),
     axis.text  = element_text(size = 14, family = "Arial"),
@@ -1438,178 +1404,334 @@ arranged_plots <- grid.arrange(histogram_plot, digrepresentation, overlay_plot2,
 }
 
 
-  # ── downloadall: no runjs (breaks in newer Shiny), use tempfile ──────────
+  # downloadall: one arranged PDF page per selected marker
   output$downloadall <- downloadHandler(
-    filename = function() { "all_plots.pdf" },
+    filename = function() { "all_marker_plots.pdf" },
+    contentType = "application/pdf",
     content = function(file) {
-      req(uploaded_df(), resultdf_reactive())
-      selected_columns_save <- input$selected_columns
-      selected_patients_save <- input$unique_patients_gating
+      tryCatch({
+        data <- uploaded_df()
+        if (is.null(data) || nrow(data) == 0) {
+          return(write_message_pdf(file, "No plots available", "Upload data and run Randkluft before downloading plots."))
+        }
 
-      sub_data <- uploaded_df() %>%
-        filter(imageid %in% selected_patients_save) %>%
-        select(imageid, all_of(selected_columns_save))
+        selected_columns_save <- input$selected_columns
+        if (is.null(selected_columns_save) || length(selected_columns_save) == 0) {
+          selected_columns_save <- setdiff(names(data), c("imageid", "X_centroid", "Y_centroid"))
+        }
 
-      pdf_temp <- tempfile(fileext = ".pdf")
-      generate_histogram_pdf(sub_data, pdf_temp)
-      file.copy(pdf_temp, file)
+        if (!"imageid" %in% names(data)) {
+          data$imageid <- "sample"
+        }
+
+        selected_patients_save <- unique_patients_gating()
+        selected_patients_save <- selected_patients_save[selected_patients_save %in% unique(data$imageid)]
+        if (length(selected_patients_save) == 0) {
+          selected_patients_save <- unique(data$imageid)
+        }
+
+        sub_data <- data[data$imageid %in% selected_patients_save, , drop = FALSE]
+
+        generate_histogram_pdf(
+          subdata_to_plot = sub_data,
+          pdf_file_name = file,
+          markers = selected_columns_save,
+          patient_ids = selected_patients_save
+        )
+      }, error = function(e) {
+        write_message_pdf(file, "Could not generate all plots", conditionMessage(e))
+      })
     }
   )
 
-  # ── downloadcurrent: server-level, reads current_4panel via isolate() ──────
-  # current_4panel is populated by generatePlot() each time plots are rendered.
-  # isolate() reads the stored objects without creating a reactive dependency.
+  # downloadcurrent: one arranged PDF page for the currently selected marker
   output$downloadcurrent <- downloadHandler(
-    filename = function() { "plots.pdf" },
+    filename = function() { "current_plot.pdf" },
+    contentType = "application/pdf",
     content = function(file) {
-      p1 <- isolate(current_4panel$p1)
-      p2 <- isolate(current_4panel$p2)
-      p3 <- isolate(current_4panel$p3)
-      p4 <- isolate(current_4panel$p4)
-      if (is.null(p1)) {
-        # No plots generated yet — write a one-page instructional PDF
-        pdf(file, width = 11, height = 11)
-        on.exit(dev.off())
-        plot.new()
-        text(0.5, 0.5,
-             "No plots available.\nPlease toggle 'Show gates' ON and\nwait for plots to render before downloading.",
-             cex = 1.3, col = "red3", adj = c(0.5, 0.5))
-        return(invisible(NULL))
-      }
-      pdf(file, width = 11, height = 11, onefile = TRUE)
-      on.exit(dev.off())
-      grid.arrange(p1, p2, p3, p4, ncol = 2)
+      tryCatch({
+        data <- uploaded_df()
+        if (is.null(data) || nrow(data) == 0) {
+          return(write_message_pdf(file, "No current plot", "Upload data and run Randkluft before downloading the current plot."))
+        }
+
+        selected_columns_current <- input$selected_columns
+        if (is.null(selected_columns_current) || length(selected_columns_current) == 0) {
+          return(write_message_pdf(file, "No current plot", "Select at least one marker before downloading the current plot."))
+        }
+
+        current_marker_index <- min(current_marker(), length(selected_columns_current))
+        selected_marker <- selected_columns_current[current_marker_index]
+
+        if (!"imageid" %in% names(data)) {
+          data$imageid <- "sample"
+        }
+
+        selected_patients_current <- unique_patients_gating()
+        selected_patients_current <- selected_patients_current[selected_patients_current %in% unique(data$imageid)]
+        if (length(selected_patients_current) == 0) {
+          selected_patients_current <- unique(data$imageid)
+        }
+        current_patient_index <- min(current_patient(), length(selected_patients_current))
+        selected_patient <- selected_patients_current[current_patient_index]
+
+        sub_data <- data[data$imageid == selected_patient, , drop = FALSE]
+
+        generate_histogram_pdf(
+          subdata_to_plot = sub_data,
+          pdf_file_name = file,
+          markers = selected_marker,
+          patient_ids = selected_patient
+        )
+      }, error = function(e) {
+        write_message_pdf(file, "Could not generate current plot", conditionMessage(e))
+      })
     }
   )
 
+
+make_pdf_message_grob <- function(title, message) {
+  gridExtra::arrangeGrob(
+    grid::textGrob(
+      message,
+      gp = grid::gpar(fontsize = 14, col = "grey25"),
+      x = 0.5,
+      y = 0.5
+    ),
+    top = grid::textGrob(title, gp = grid::gpar(fontsize = 16, fontface = "bold"))
+  )
+}
+
+write_message_pdf <- function(file, title, message, width = 11, height = 8.5) {
+  pdf(file, width = width, height = height, onefile = TRUE)
+  on.exit(dev.off(), add = TRUE)
+  grid::grid.draw(make_pdf_message_grob(title, message))
+  invisible(file)
+}
+
+resolve_gate_value <- function(patient_id, marker, data) {
+  gates <- csv_save_file_path()
+  if (is.null(gates)) {
+    gates <- resultdf_reactive()
+  }
+
+  gate_value <- numeric(0)
+  if (!is.null(gates) && all(c("Patient", "Marker", "Gate") %in% names(gates))) {
+    gate_value <- gates$Gate[
+      gates$Marker == marker &
+        gates$Patient == patient_id
+    ]
+  }
+
+  if (length(gate_value) == 0 || is.na(gate_value[1]) || !is.finite(gate_value[1])) {
+    target <- suppressWarnings(as.numeric(data[data$imageid == patient_id, marker]))
+    target <- target[is.finite(target)]
+    gate_value <- tryCatch(skew_gate(target, 0.01)$cutoff, error = function(e) NA_real_)
+  }
+
+  gate_value <- as.numeric(gate_value[1])
+  if (!is.finite(gate_value)) {
+    gate_value <- NA_real_
+  }
+  gate_value
+}
+
+make_marker_histogram_plot <- function(data, patient_id, marker, gate_value) {
+  target <- suppressWarnings(as.numeric(data[data$imageid == patient_id, marker]))
+  target <- target[is.finite(target)]
+
+  if (length(target) == 0) {
+    return(
+      ggplot() +
+        annotate("text", x = 0, y = 0, label = "No finite marker values", size = 5) +
+        theme_void() +
+        labs(title = "Gate Histogram")
+    )
+  }
+
+  target <- remove_outliers2(target)
+  target <- target[is.finite(target)]
+  plot_df <- data.frame(x = target)
+  n_positive <- if (is.na(gate_value)) NA_integer_ else sum(target > gate_value)
+  positive_rate <- if (is.na(gate_value)) NA_real_ else round(n_positive / length(target), 3)
+
+  histogram_plot <- ggplot(plot_df, aes(x = x)) +
+    geom_histogram(
+      aes(y = after_stat(density)),
+      bins = 80,
+      fill = "#d8e9f7",
+      color = "#34495e",
+      size = 0.2
+    ) +
+    labs(
+      title = "Gate Histogram",
+      subtitle = if (is.na(gate_value)) {
+        "Gate unavailable"
+      } else {
+        paste0("N+ = ", n_positive, "   +R = ", positive_rate, "   Gate = ", round(gate_value, 2))
+      },
+      x = marker,
+      y = "Density"
+    ) +
+    theme_minimal(base_family = "sans") +
+    theme(
+      plot.title = element_text(face = "bold", hjust = 0.5, size = 15),
+      plot.subtitle = element_text(hjust = 0.5, size = 10),
+      panel.grid.minor = element_blank()
+    )
+
+  if (length(unique(target)) > 1) {
+    histogram_plot <- histogram_plot + geom_density(color = "#2c3e50", size = 0.6)
+  }
+
+  if (!is.na(gate_value)) {
+    histogram_plot <- histogram_plot +
+      geom_vline(xintercept = gate_value, color = "#c0392b", size = 0.8) +
+      annotate(
+        "label",
+        x = gate_value,
+        y = Inf,
+        label = paste0("Gate: ", round(gate_value, 2)),
+        hjust = -0.05,
+        vjust = 1.2,
+        size = 3.2,
+        fill = "white",
+        color = "#c0392b"
+      )
+  }
+
+  gt_gate <- ground_truth_gates_loaded$Gate[
+    ground_truth_gates_loaded$Patient == patient_id &
+      ground_truth_gates_loaded$Marker == marker
+  ]
+  if (length(gt_gate) > 0 && !is.na(gt_gate[1])) {
+    histogram_plot <- histogram_plot + geom_vline(xintercept = gt_gate[1], color = "#2c7fb8", size = 0.7)
+  }
+
+  histogram_plot
+}
 
 generate_four_panel_plot <- function(data, patient_id, marker) {
-  # Transplanted from Crevasse (appv17.R) — the proven working version.
-  # patient_id renamed (was imageid) to avoid dplyr column-name ambiguity.
-  # Added ggplot2 3.5+ guard: geom_density_2d requires >= 2 observations.
-
-  selected_columns_save <- input$selected_columns
-
-  # Get the column indices relative to sub-data passed in
-  column_indices <- sapply(selected_columns_save, function(col_name) {
-    which(names(data) == col_name)
-  })
-
-  histogram_plot <- plot_gating_grid(data, patient_id, column_indices[marker])
-
-  # Use explicit .data pronoun to avoid dplyr column/variable name clash
-  pid <- patient_id
-  filtered_data_xy <- uploaded_df() %>%
-    filter(.data$imageid == pid)
-
-  chosen_patient <- patient_id
-  chosen_marker  <- marker
-
-  digrepresentation <- ggplot(filtered_data_xy,
-      aes(x = X_centroid, y = Y_centroid,
-          color = filtered_data_xy[[chosen_marker]])) +
-    geom_point(shape = 20, size = 0.6) +
-    scale_color_gradient(low = "grey30", high = "white") +
-    theme(panel.background = element_rect(fill = "black"),
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank()) +
-    xlab("X Centroid") +
-    ylab("Y Centroid") +
-    theme(legend.position = "none") +
-    theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-    labs(title = 'Digital Representation')
-
-  gate_value <- resultdf_reactive()$Gate[
-    resultdf_reactive()$Marker == chosen_marker &
-      resultdf_reactive()$Patient == chosen_patient
-  ]
-  # Guard: gate_value may be numeric(0) or NA for user data without ground truth
-  if (length(gate_value) == 0 || is.na(gate_value[1])) gate_value <- 0
-
-  if (!is.null(outputinterceptreactive())) {
-    gate_value <- outputinterceptreactive()
+  filtered_data_xy <- data[data$imageid == patient_id, , drop = FALSE]
+  if (nrow(filtered_data_xy) == 0 || !marker %in% names(filtered_data_xy)) {
+    return(make_pdf_message_grob(marker, "No data available for this marker."))
   }
 
-  density_values <- get_density(filtered_data_xy$X_centroid,
-                                filtered_data_xy$Y_centroid, n = 100)
+  if (!all(c("X_centroid", "Y_centroid") %in% names(filtered_data_xy))) {
+    grid_width <- max(1, ceiling(sqrt(nrow(filtered_data_xy))))
+    filtered_data_xy$X_centroid <- ((seq_len(nrow(filtered_data_xy)) - 1) %% grid_width) + 1
+    filtered_data_xy$Y_centroid <- ((seq_len(nrow(filtered_data_xy)) - 1) %/% grid_width) + 1
+  }
 
-  # ggplot2 3.5+: geom_density_2d errors when subset has < 2 observations
-  pos_subset <- filtered_data_xy[filtered_data_xy[[chosen_marker]] > gate_value, ]
+  filtered_data_xy[[marker]] <- suppressWarnings(as.numeric(filtered_data_xy[[marker]]))
+  gate_value <- resolve_gate_value(patient_id, marker, data)
+  histogram_plot <- make_marker_histogram_plot(data, patient_id, marker, gate_value)
+
+  density_values <- tryCatch(
+    get_density(filtered_data_xy$X_centroid, filtered_data_xy$Y_centroid, n = 100),
+    error = function(e) rep(0, nrow(filtered_data_xy))
+  )
+  is_positive <- if (is.na(gate_value)) {
+    rep(FALSE, nrow(filtered_data_xy))
+  } else {
+    filtered_data_xy[[marker]] > gate_value
+  }
+  is_positive[is.na(is_positive)] <- FALSE
+  filtered_data_xy$pdf_density <- ifelse(is_positive, density_values, 0)
+  filtered_data_xy$gate_status <- ifelse(is_positive, "Positive", "Negative")
+
+  spatial_theme <- theme_minimal(base_family = "sans") +
+    theme(
+      plot.title = element_text(face = "bold", hjust = 0.5, size = 15),
+      panel.grid.minor = element_blank(),
+      legend.position = "bottom"
+    )
+
+  digrepresentation <- ggplot(filtered_data_xy, aes(x = X_centroid, y = Y_centroid, color = .data[[marker]])) +
+    geom_point(shape = 20, size = 0.35, alpha = 0.55) +
+    scale_color_viridis(option = "turbo", name = "Intensity") +
+    labs(title = "Digital Representation", x = "X Centroid", y = "Y Centroid") +
+    spatial_theme
+
+  pos_subset <- filtered_data_xy[is_positive, , drop = FALSE]
   contour_plot <- ggplot(filtered_data_xy, aes(x = X_centroid, y = Y_centroid)) +
-    geom_point(aes(color = ifelse(filtered_data_xy[[chosen_marker]] > gate_value,
-                                  density_values, 0)), size = 0.6) +
-    scale_color_viridis(option = "turbo") +
-    theme(legend.position = "none") +
-    theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-    labs(title = 'Positive Density', x = "X Centroid", y = "Y Centroid")
+    geom_point(aes(color = pdf_density), size = 0.35, alpha = 0.45) +
+    scale_color_viridis(option = "turbo", name = "Density") +
+    labs(title = "Positive Density", x = "X Centroid", y = "Y Centroid") +
+    spatial_theme
   if (nrow(pos_subset) >= 2) {
     contour_plot <- contour_plot +
-      geom_density_2d(data = pos_subset, color = 'black')
+      geom_density_2d(data = pos_subset, aes(x = X_centroid, y = Y_centroid), inherit.aes = FALSE, color = "black", size = 0.35)
   }
 
-  overlay_plot2 <- ggplot(filtered_data_xy, aes(x = X_centroid, y = Y_centroid)) +
-    geom_point(aes(color = ifelse(filtered_data_xy[[chosen_marker]] > gate_value,
-                                  "Positive", "Negative")), size = 0.6) +
-    scale_color_manual(guide = guide_legend(title = ""),
-                       values = c("Positive" = "red", "Negative" = "grey")) +
-    theme(legend.position = "none") +
-    theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-    labs(title = "Positive Cells", x = "X Centroid", y = "Y Centroid")
+  overlay_plot2 <- ggplot(filtered_data_xy, aes(x = X_centroid, y = Y_centroid, color = gate_status)) +
+    geom_point(size = 0.35, alpha = 0.5) +
+    scale_color_manual(guide = guide_legend(title = ""), values = c("Positive" = "#c0392b", "Negative" = "grey70")) +
+    labs(title = "Positive Cells", x = "X Centroid", y = "Y Centroid") +
+    spatial_theme
 
-  arranged_plots <- grid.arrange(histogram_plot, overlay_plot2,
-                                 digrepresentation, contour_plot, ncol = 2)
-  return(arranged_plots)
+  gridExtra::arrangeGrob(
+    histogram_plot,
+    digrepresentation,
+    overlay_plot2,
+    contour_plot,
+    ncol = 2,
+    top = grid::textGrob(
+      paste0("Marker: ", marker),
+      gp = grid::gpar(fontsize = 17, fontface = "bold")
+    )
+  )
 }
 
 
-generate_histogram_pdf <- function(subdata_to_plot, pdf_file_name) {
-  # Transplanted from Crevasse, updated for R 4.6.0:
-  # - tryCatch per plot so one bad marker does not abort the whole PDF
-  # - marrangeGrob for proper multi-page PDF (one page per patient/marker)
-  # - geom_density_2d guard handled inside generate_four_panel_plot
-
+generate_histogram_pdf <- function(subdata_to_plot, pdf_file_name, markers = NULL, patient_ids = NULL) {
   data <- subdata_to_plot
-  four_panel_plot_list <- list()
-  unique_imageids <- unique(data$imageid)
-  markers <- colnames(data)[-1]
+  if (!"imageid" %in% names(data)) {
+    data$imageid <- "sample"
+  }
 
-  for (img in unique_imageids) {
+  if (is.null(markers)) {
+    markers <- setdiff(names(data), c("imageid", "X_centroid", "Y_centroid"))
+  }
+  markers <- markers[markers %in% names(data)]
+
+  if (is.null(patient_ids)) {
+    patient_ids <- unique(data$imageid)
+  }
+  patient_ids <- patient_ids[patient_ids %in% unique(data$imageid)]
+
+  pdf(file = pdf_file_name, width = 14, height = 10, onefile = TRUE)
+  on.exit(dev.off(), add = TRUE)
+
+  if (length(markers) == 0 || length(patient_ids) == 0) {
+    grid::grid.draw(make_pdf_message_grob("No plots available", "Run Randkluft and select at least one marker before downloading all plots."))
+    pdf_file_path(pdf_file_name)
+    return(invisible(pdf_file_name))
+  }
+
+  first_page <- TRUE
+  for (patient_id in patient_ids) {
     for (marker in markers) {
-      tryCatch({
-        p <- generate_four_panel_plot(data, img, marker)
-        four_panel_plot_list[[paste(img, marker)]] <- p
-      }, error = function(e) {
-        message("Skipping ", img, " / ", marker, ": ", conditionMessage(e))
-      })
+      page_grob <- tryCatch(
+        generate_four_panel_plot(data, patient_id, marker),
+        error = function(e) {
+          make_pdf_message_grob(
+            paste0("Marker: ", marker),
+            paste("Could not generate this page:", conditionMessage(e))
+          )
+        }
+      )
+      if (first_page) {
+        first_page <- FALSE
+      } else {
+        grid::grid.newpage()
+      }
+      grid::grid.draw(page_grob)
     }
   }
 
-  if (length(four_panel_plot_list) == 0) {
-    message("No plots could be generated — writing placeholder PDF.")
-    pdf(file = pdf_file_name, width = 14, height = 10)
-    on.exit(dev.off())
-    plot.new()
-    text(0.5, 0.5, "No plots could be generated.\nCheck that Randkluft has been run first.", cex = 1.3)
-    dev.off()
-    on.exit()
-    pdf_file_path(pdf_file_name)
-    return(invisible(NULL))
-  }
-
-  pdf_file <- pdf_file_name
-  pdf(file = pdf_file, width = 14, height = 10)
-  on.exit(dev.off())
-
-  # marrangeGrob paginates a list of grobs/gtables: one per page automatically
-  ml <- gridExtra::marrangeGrob(
-    grobs = four_panel_plot_list,
-    nrow = 1, ncol = 1, top = NULL
-  )
-  print(ml)
-
-  dev.off()
-  on.exit()
-  pdf_file_path(pdf_file)
+  pdf_file_path(pdf_file_name)
+  invisible(pdf_file_name)
 }
 
 
@@ -1618,8 +1740,8 @@ generate_histogram_pdf <- function(subdata_to_plot, pdf_file_name) {
     req(uploaded_df())
     colnames(uploaded_df())
     # Define the column names you want to exclude
-    columns_to_exclude <- c("imageid", "phenotype", "ROI_major_category", "CellID", "X", "Y", "DNA2", "Hoechst1", "Hoechst2", "Hoechst3", 
-                            "Hoechst4", "Hoechst5", "Hoechst6", "Hoechst7", "Hoechst8", "Hoechst9", "Hoechst10", "Hoechst_1", "Hoechst_2", "Hoechst_3", 
+    columns_to_exclude <- c("imageid", "phenotype", "ROI_major_category", "CellID", "Cell", "Row", "X", "Y", "DNA2", "Hoechst1", "Hoechst2", "Hoechst3",
+                            "Hoechst4", "Hoechst5", "Hoechst6", "Hoechst7", "Hoechst8", "Hoechst9", "Hoechst10", "Hoechst_1", "Hoechst_2", "Hoechst_3",
                             "Hoechst_4", "Hoechst_5", "Hoechst_6", "Hoechst_7", "Hoechst_8", "Hoechst_9", "Hoechst_10", "DAPI1", "DAPI2", "DAPI3", "DAPI4", "DAPI5", "DAPI6", "DAPI7", "DAPI8", "DAPI9", "DAPI10",
                             "DAPI_1", "DAPI_2", "DAPI_3", "DAPI_4", "DAPI_5", "DAPI_6", "DAPI_7", "DAPI_8", "DAPI_9", "DAPI_10", "DNA1", "DNA3", "DNA2", "DNA4", "DNA5", "DNA6","DNA7","DNA8", "DNA9", "DNA10", "DNA11",
                             "DNA12", "DNA13", "DNA_1", "DNA_3", "DNA_2", "DNA_4", "DNA_5", "DNA_6","DNA_7","DNA_8", "DNA_9", "DNA_10", "DNA_11",
@@ -1658,7 +1780,7 @@ generate_histogram_pdf <- function(subdata_to_plot, pdf_file_name) {
 
 
       print('hi')
-      
+
       # Combine UMAP results with original dataframe
       umap_df <- cbind(uploaded_df(), umap_result$layout)
 
@@ -1695,22 +1817,6 @@ generate_histogram_pdf <- function(subdata_to_plot, pdf_file_name) {
 })
 
  observe({
-  shinyjs::show("patient_number_plot2")
-  updateRadioButtons(session, "patient_number_plot2", choices = unique_patients())
-})
-
-observe({
-  shinyjs::show("trivar_patient")
-  updateRadioButtons(session, "trivar_patient", choices = unique_patients())
-})
-
-
- observe({
-  shinyjs::show("unique_patients_gating")
-  updateCheckboxGroupInput(session, "unique_patients_gating", choices = unique_patients(), selected = unique_patients())
-})
-
- observe({
   shinyjs::show("precrev_marker")
   updateRadioButtons(session, "precrev_marker", choices = unique_markers_w_DNA())
 })
@@ -1719,7 +1825,7 @@ observe({
     req(uploaded_df())
     colnames(uploaded_df())
     # Define the column names you want to exclude
-    columns_to_exclude <- c("imageid", "phenotype", "ROI_major_category", "CellID", "X", "Y", 
+    columns_to_exclude <- c("imageid", "phenotype", "ROI_major_category", "CellID", "Cell", "Row", "X", "Y",
      "ROI_minor_category", "phenotype_v2", "X_centroid", "Y_centroid", "Eccentricity", "Area", "MajorAxisLength",
     "MinorAxisLength", "Extent", "Solidity", "Orientation", "")  # List the columns to exclude
     # Select all column names except the ones to exclude
@@ -1740,7 +1846,7 @@ observe({
       columns_to_exclude <- c(columns_to_exclude, exclude_columns2)
 
     column_names <- setdiff(names(uploaded_df()), columns_to_exclude)
-    
+
   })
 
 
@@ -1748,8 +1854,8 @@ observe({
     req(uploaded_df())
     colnames(uploaded_df())
     # Define the column names you want to exclude
-    columns_to_exclude <- c("imageid", "phenotype", "ROI_major_category", "CellID", "X", "Y", "DNA2", "Hoechst1", "Hoechst2", "Hoechst3", 
-                            "Hoechst4", "Hoechst5", "Hoechst6", "Hoechst7", "Hoechst8", "Hoechst9", "Hoechst10", "Hoechst_1", "Hoechst_2", "Hoechst_3", 
+    columns_to_exclude <- c("imageid", "phenotype", "ROI_major_category", "CellID", "Cell", "Row", "X", "Y", "DNA2", "Hoechst1", "Hoechst2", "Hoechst3",
+                            "Hoechst4", "Hoechst5", "Hoechst6", "Hoechst7", "Hoechst8", "Hoechst9", "Hoechst10", "Hoechst_1", "Hoechst_2", "Hoechst_3",
                             "Hoechst_4", "Hoechst_5", "Hoechst_6", "Hoechst_7", "Hoechst_8", "Hoechst_9", "Hoechst_10", "DAPI1", "DAPI2", "DAPI3", "DAPI4", "DAPI5", "DAPI6", "DAPI7", "DAPI8", "DAPI9", "DAPI10",
                             "DAPI_1", "DAPI_2", "DAPI_3", "DAPI_4", "DAPI_5", "DAPI_6", "DAPI_7", "DAPI_8", "DAPI_9", "DAPI_10", "DNA1", "DNA3", "DNA2", "DNA4", "DNA5", "DNA6","DNA7","DNA8", "DNA9", "DNA10", "DNA11",
                             "DNA12", "DNA13", "DNA_1", "DNA_3", "DNA_2", "DNA_4", "DNA_5", "DNA_6","DNA_7","DNA_8", "DNA_9", "DNA_10", "DNA_11",
@@ -1765,8 +1871,12 @@ observe({
     # Add the excluded columns to the original 'columns_to_exclude' vector
     columns_to_exclude <- c(columns_to_exclude, exclude_columns)
 
+    exclude_pattern2 <- "_positivity"
+    exclude_columns2 <- grep(exclude_pattern2, colnames(uploaded_df()), value = TRUE, ignore.case = TRUE)
+    columns_to_exclude <- c(columns_to_exclude, exclude_columns2)
+
     column_names <- setdiff(names(uploaded_df()), columns_to_exclude)
-    
+
   })
 
     cycle_detected <- reactive({
@@ -1778,7 +1888,7 @@ observe({
     column_names <- grep(cycle_pattern, colnames(uploaded_df()), value = TRUE, ignore.case = TRUE)
 
     column_names
-    
+
   })
 
 
@@ -1792,7 +1902,7 @@ observe({
 
 
   unique_patients_gating <- reactive({
-    input$unique_patients_gating
+    unique_patients()
   })
 
   inputreactiveintercept_USERDEF <- reactive({
@@ -1854,7 +1964,7 @@ observe({
 
       selected_patient <- input$patient_number_im_gargage
       selected_marker <- input$precrev_marker
-      
+
       # Filter data based on selected patient
       filtered_data <- uploaded_df()[uploaded_df()$imageid %in% selected_patient, ]
 
@@ -1870,7 +1980,7 @@ observe({
 
     ggplot(filtered_data_reactive(), aes(x = X_centroid, y = Y_centroid, color = filtered_data_reactive()[[selected_marker]])) +
       geom_point(alpha = selected_opacity()) +
-      xlab('X Centroid') + ylab('Y Centroid') + 
+      xlab('X Centroid') + ylab('Y Centroid') +
       theme(plot.title = element_text(face = "bold", hjust = 0.5, size = 18)) +
       labs(title = "Digital Marker Overlay") +
       scale_color_continuous(name = "Intensity (logged)")
@@ -1909,7 +2019,7 @@ filtered_data_updated <- reactiveVal(NULL)
 
       print(selected_patient)
 
-  
+
       cycle_pattern <- "DNA|DAPI|Hoechst"  # Define your pattern
 
       print(colnames(filtered_data))
@@ -1924,7 +2034,7 @@ filtered_data_updated <- reactiveVal(NULL)
 
       print(selected_columns)
 
-  
+
      print(column_indices[selected_columns])
      print(colnames(uploaded_df()))
       histogram_plots <- plot_gating_grid(filtered_data, selected_patient, column_indices[selected_columns])
@@ -1948,11 +2058,11 @@ filtered_data_updated <- reactiveVal(NULL)
           # Find mode of the histogram data
           mode_value <- find_mode(histogram_data)
 
-        
+
           print(mode_value)
 
           # print(kldiv)
-          
+
           # Store mode values
           modes[[column_name]] <- mode_value
         }
@@ -1969,7 +2079,7 @@ filtered_data_updated <- reactiveVal(NULL)
 
          # Plot the modes separately
         plot_modes <- ggplot(modes_df, aes(x = Index, y = Value)) +
-        geom_point() + 
+        geom_point() +
           geom_line() +
           labs(x = "Cycle Number", y = "Mode") +
           ggtitle("Regression of Quality") +
@@ -1998,24 +2108,24 @@ filtered_data_updated <- reactiveVal(NULL)
         # Extract consecutive pairs of columns
         intensity_vector1 <- filtered_data[[selected_columns[i]]]
         intensity_vector2 <- filtered_data[[selected_columns[i + 1]]]
-        
+
         # Exponentiate log values to obtain non-logarithmic values
         non_log_values1 <- exp(intensity_vector1)
         non_log_values2 <- exp(intensity_vector2)
-        
+
         # Normalize the resulting values to ensure they represent probability distributions
         normalize <- function(x) x / sum(x)
         prob_distribution1 <- normalize(non_log_values1)
         prob_distribution2 <- normalize(non_log_values2)
-        
+
         # Bind the vectors
         vectors <- rbind(prob_distribution1, prob_distribution2)
-        
+
         # Calculate KL divergence between histograms
         kl_divergence <- KL(vectors, unit = 'log')
 
         print(kl_divergence)
-        
+
         # Store the KL divergence in the list
         kl_divergences[[paste(selected_columns[i], selected_columns[i + 1], sep = "_")]] <- kl_divergence
       }
@@ -2028,7 +2138,7 @@ filtered_data_updated <- reactiveVal(NULL)
 
       # Plot the trend of KL divergences
       plot_kl_divergences <- ggplot(kl_df, aes(x = Index, y = KL_Divergence)) +
-        geom_point() + 
+        geom_point() +
         geom_line() +
         labs(x = "Pair Number", y = "KL Divergence") +
         ggtitle("Trend of KL Divergence") +
@@ -2038,7 +2148,7 @@ filtered_data_updated <- reactiveVal(NULL)
         ) +
         scale_y_continuous(label = scales::comma)
 
-      klPlotReact(plot_kl_divergences)       
+      klPlotReact(plot_kl_divergences)
 
 
             # Example: Calculate mode differences
@@ -2093,7 +2203,7 @@ filtered_data_updated <- reactiveVal(NULL)
               line = list(color = "black", width = 4),
               thickness = 0.75,
               value = min_value_cycle)
-              
+
               ))
 
 
@@ -2175,12 +2285,12 @@ filtered_data_updated <- reactiveVal(NULL)
         output$modes_plot_output <- renderPlot({
           regression_mode_react()
         })
-        
+
          output$klPLOToutput <- renderPlot({
           klPlotReact()
         })
 
-    
+
     observeEvent(input$RetrySubset, {
       selected_marker <- input$precrev_marker
   brushed_data(NULL)
@@ -2188,12 +2298,12 @@ filtered_data_updated <- reactiveVal(NULL)
   output$image_garage_output <- renderPlotly({
     ggplot(filtered_data_reactive(), aes(x = X_centroid, y = Y_centroid, color = filtered_data_reactive()[[selected_marker]])) +
       geom_point(alpha = selected_opacity()) +
-      xlab('X Centroid') + ylab('Y Centroid') + 
+      xlab('X Centroid') + ylab('Y Centroid') +
       labs(title = "Digital Marker Overlay") +
         scale_color_continuous(name = "Intensity (logged)") +
            theme(
       plot.title = element_text(face = "bold", hjust = 0.5, size = 18)
-    ) 
+    )
   })
 })
 
@@ -2211,9 +2321,9 @@ observeEvent(input$RemoveSubset, {
         scale_color_continuous(name = "Intensity (logged)") +
            theme(
       plot.title = element_text(face = "bold", hjust = 0.5, size = 18)
-    ) 
+    )
   })
-  
+
 })
 
 
@@ -2238,7 +2348,7 @@ observeEvent(event_data("plotly_selected"), {
         scale_color_continuous(name = "Intensity (logged)") +
            theme(
       plot.title = element_text(face = "bold", hjust = 0.5, size = 18)
-    ) 
+    )
     })
   }
 })
@@ -2246,7 +2356,7 @@ observeEvent(event_data("plotly_selected"), {
 
     observeEvent(input$UseSubset, {
     uploaded_df(filtered_data_reactive())
-    
+
 
   # showNotification("Data subset loaded for patient!", duration = NULL, id = "loadedsubset")
     # Display a completion message to the user
@@ -2285,7 +2395,7 @@ observeEvent(event_data("plotly_selected"), {
     },
     content = function(file) {
       mydftosave = uploaded_df()
-      write.csv(mydftosave, file, row.names = FALSE) 
+      write.csv(mydftosave, file, row.names = FALSE)
     }
   )
 
@@ -2307,7 +2417,7 @@ observeEvent(event_data("plotly_selected"), {
     },
     content = function(file) {
       mydftosave = csv_save_file_path()
-      write.csv(mydftosave, file, row.names = FALSE) 
+      write.csv(mydftosave, file, row.names = FALSE)
     }
   )
 
@@ -2343,26 +2453,342 @@ observeEvent(c(input$xvar, input$yvar), {
 
 
   subsetted <- reactive({
-    req(input$patient_number_plot2)
-    uploaded_df() |> filter(imageid %in% input$patient_number_plot2)  
-   
+    req(uploaded_df())
+    uploaded_df() |> filter(imageid %in% unique_patients_gating())
+
   })
 
-  
+
   subsetted_precrev_ts <- reactive({
     req(input$patients_ts)
-    uploaded_df() |> filter(imageid %in% input$patients_ts)  
-   
+    uploaded_df() |> filter(imageid %in% input$patients_ts)
+
   })
 
     subsetted_tri <- reactive({
-    req(input$trivar_patient)
-    uploaded_df() |> filter(imageid %in% input$trivar_patient)  
-   
+    req(uploaded_df())
+    uploaded_df() |> filter(imageid %in% unique_patients_gating())
+
   })
 
   react_xgate <- reactiveVal(NULL)
   react_ygate <- reactiveVal(NULL)
+
+  resolve_bivariate_gate_value <- function(data, patient_id, marker, override = NULL) {
+    override_value <- suppressWarnings(as.numeric(override[1]))
+    if (!is.null(override) && length(override) > 0 && is.finite(override_value)) {
+      return(override_value)
+    }
+
+    gate_value <- resolve_gate_value(patient_id, marker, data)
+    if (!is.finite(gate_value)) {
+      marker_values <- suppressWarnings(as.numeric(data[data$imageid == patient_id, marker]))
+      marker_values <- marker_values[is.finite(marker_values)]
+      gate_value <- if (length(marker_values) > 0) median(marker_values, na.rm = TRUE) else NA_real_
+    }
+
+    gate_value
+  }
+
+  generate_bivariate_plot_grob <- function(data, patient_id, xvar, yvar, gate_x_override = NULL, gate_y_override = NULL) {
+    if (!all(c(xvar, yvar) %in% names(data))) {
+      return(make_pdf_message_grob(
+        paste0(xvar, " vs ", yvar),
+        "One or both selected markers are not available in the current data."
+      ))
+    }
+
+    dfplot2 <- data[data$imageid == patient_id, , drop = FALSE]
+    if (nrow(dfplot2) == 0) {
+      return(make_pdf_message_grob(paste0(xvar, " vs ", yvar), "No data available for this plot."))
+    }
+
+    if (!all(c("X_centroid", "Y_centroid") %in% names(dfplot2))) {
+      grid_width <- max(1, ceiling(sqrt(nrow(dfplot2))))
+      dfplot2$X_centroid <- ((seq_len(nrow(dfplot2)) - 1) %% grid_width) + 1
+      dfplot2$Y_centroid <- ((seq_len(nrow(dfplot2)) - 1) %/% grid_width) + 1
+    }
+
+    dfplot2[[xvar]] <- suppressWarnings(as.numeric(dfplot2[[xvar]]))
+    dfplot2[[yvar]] <- suppressWarnings(as.numeric(dfplot2[[yvar]]))
+    dfplot2$X_centroid <- suppressWarnings(as.numeric(dfplot2$X_centroid))
+    dfplot2$Y_centroid <- suppressWarnings(as.numeric(dfplot2$Y_centroid))
+
+    complete_rows <- complete.cases(dfplot2[[xvar]], dfplot2[[yvar]], dfplot2$X_centroid, dfplot2$Y_centroid)
+    finite_rows <- is.finite(dfplot2[[xvar]]) & is.finite(dfplot2[[yvar]]) &
+      is.finite(dfplot2$X_centroid) & is.finite(dfplot2$Y_centroid)
+    dfplot2 <- dfplot2[complete_rows & finite_rows, , drop = FALSE]
+
+    if (nrow(dfplot2) == 0) {
+      return(make_pdf_message_grob(paste0(xvar, " vs ", yvar), "No finite values available for this plot."))
+    }
+
+    gate_xvar <- resolve_bivariate_gate_value(data, patient_id, xvar, gate_x_override)
+    gate_yvar <- resolve_bivariate_gate_value(data, patient_id, yvar, gate_y_override)
+
+    if (xvar == yvar) {
+      if (!is.null(gate_x_override)) {
+        gate_yvar <- gate_xvar
+      } else if (!is.null(gate_y_override)) {
+        gate_xvar <- gate_yvar
+      }
+    }
+
+    is_x_pos <- if (is.finite(gate_xvar)) dfplot2[[xvar]] > gate_xvar else rep(FALSE, nrow(dfplot2))
+    is_y_pos <- if (is.finite(gate_yvar)) dfplot2[[yvar]] > gate_yvar else rep(FALSE, nrow(dfplot2))
+    is_x_pos[is.na(is_x_pos)] <- FALSE
+    is_y_pos[is.na(is_y_pos)] <- FALSE
+
+    num_points <- nrow(dfplot2)
+    prop_pp <- sum(is_x_pos & is_y_pos) / num_points
+    prop_pm <- sum(is_x_pos & !is_y_pos) / num_points
+    prop_mp <- sum(!is_x_pos & is_y_pos) / num_points
+    prop_mm <- sum(!is_x_pos & !is_y_pos) / num_points
+
+    density_values_bi <- tryCatch(
+      get_density(dfplot2[[xvar]], dfplot2[[yvar]], n = 100),
+      error = function(e) rep(0, nrow(dfplot2))
+    )
+
+    x_range <- range(dfplot2[[xvar]], na.rm = TRUE)
+    y_range <- range(dfplot2[[yvar]], na.rm = TRUE)
+    x_pad <- diff(x_range) * 0.04
+    y_pad <- diff(y_range) * 0.04
+    if (!is.finite(x_pad) || x_pad == 0) x_pad <- 1
+    if (!is.finite(y_pad) || y_pad == 0) y_pad <- 1
+
+    pdf_theme <- theme_minimal(base_family = "sans") +
+      theme(
+        plot.title = element_text(face = "bold", hjust = 0.5, size = 15),
+        axis.title = element_text(size = 11),
+        axis.text = element_text(size = 9),
+        panel.grid.minor = element_blank(),
+        legend.position = "bottom",
+        legend.title = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 12),
+        legend.key.size = grid::unit(0.9, "cm"),
+        legend.key.width = grid::unit(1.1, "cm"),
+        legend.key.height = grid::unit(0.75, "cm"),
+        legend.spacing.x = grid::unit(0.35, "cm")
+      )
+
+    density_plot <- ggplot(dfplot2, aes(x = .data[[xvar]], y = .data[[yvar]])) +
+      geom_point(aes(color = density_values_bi), size = 0.35, alpha = 0.45) +
+      scale_color_viridis(
+        option = "turbo",
+        name = "Density",
+        guide = guide_colorbar(
+          title.position = "top",
+          barwidth = grid::unit(4.5, "cm"),
+          barheight = grid::unit(0.4, "cm")
+        )
+      ) +
+      labs(title = "Bivariate Density", x = xvar, y = yvar) +
+      pdf_theme
+    if (is.finite(gate_xvar)) {
+      density_plot <- density_plot + geom_vline(xintercept = gate_xvar, color = "orange", size = 0.7)
+    }
+    if (is.finite(gate_yvar)) {
+      density_plot <- density_plot + geom_hline(yintercept = gate_yvar, color = "orange", size = 0.7)
+    }
+    density_plot <- density_plot +
+      geom_text(x = x_range[2] - x_pad, y = y_range[2] - y_pad, label = round(prop_pp, 3), color = "red", size = 4) +
+      geom_text(x = x_range[2] - x_pad, y = y_range[1] + y_pad, label = round(prop_pm, 3), color = "green4", size = 4) +
+      geom_text(x = x_range[1] + x_pad, y = y_range[2] - y_pad, label = round(prop_mp, 3), color = "blue", size = 4) +
+      geom_text(x = x_range[1] + x_pad, y = y_range[1] + y_pad, label = round(prop_mm, 3), color = "black", size = 4)
+
+    dfplot2$bivariate_gate_status <- dplyr::case_when(
+      is_x_pos & is_y_pos ~ "+/+",
+      is_x_pos & !is_y_pos ~ "+/-",
+      !is_x_pos & is_y_pos ~ "-/+",
+      TRUE ~ "-/-"
+    )
+
+    overlay_plot2 <- ggplot(dfplot2, aes(x = X_centroid, y = Y_centroid, color = bivariate_gate_status)) +
+      geom_point(size = 0.35, alpha = 0.55) +
+      scale_color_manual(
+        guide = guide_legend(title = "", override.aes = list(size = 4.5, alpha = 1)),
+        values = c("+/+" = "red", "-/-" = "grey70", "+/-" = "green4", "-/+" = "blue")
+      ) +
+      labs(title = "Bivariate Gating", x = "X Centroid", y = "Y Centroid") +
+      pdf_theme
+
+    prop_above_cutoff_xvar <- sum(is_x_pos) / nrow(dfplot2)
+    dfplot2$x_status <- ifelse(is_x_pos, "Positive", "Negative")
+    contour_plot_xvar <- ggplot(dfplot2, aes(x = X_centroid, y = Y_centroid, color = x_status)) +
+      geom_point(size = 0.35, alpha = 0.45) +
+      scale_color_manual(
+        guide = guide_legend(title = "", override.aes = list(size = 4.5, alpha = 1)),
+        values = c("Positive" = "green4", "Negative" = "grey70")
+      ) +
+      labs(title = paste0(xvar, "+ cells = ", round(prop_above_cutoff_xvar, 3)), x = "X Centroid", y = "Y Centroid") +
+      pdf_theme
+    x_pos_subset <- dfplot2[is_x_pos, , drop = FALSE]
+    if (nrow(x_pos_subset) >= 2 &&
+        length(unique(x_pos_subset$X_centroid)) >= 2 &&
+        length(unique(x_pos_subset$Y_centroid)) >= 2) {
+      contour_plot_xvar <- contour_plot_xvar +
+        geom_density_2d(data = x_pos_subset, aes(x = X_centroid, y = Y_centroid), inherit.aes = FALSE, color = "black", size = 0.35)
+    }
+
+    prop_above_cutoff_yvar <- sum(is_y_pos) / nrow(dfplot2)
+    dfplot2$y_status <- ifelse(is_y_pos, "Positive", "Negative")
+    contour_plot_yvar <- ggplot(dfplot2, aes(x = X_centroid, y = Y_centroid, color = y_status)) +
+      geom_point(size = 0.35, alpha = 0.45) +
+      scale_color_manual(
+        guide = guide_legend(title = "", override.aes = list(size = 4.5, alpha = 1)),
+        values = c("Positive" = "blue", "Negative" = "grey70")
+      ) +
+      labs(title = paste0(yvar, "+ cells = ", round(prop_above_cutoff_yvar, 3)), x = "X Centroid", y = "Y Centroid") +
+      pdf_theme
+    y_pos_subset <- dfplot2[is_y_pos, , drop = FALSE]
+    if (nrow(y_pos_subset) >= 2 &&
+        length(unique(y_pos_subset$X_centroid)) >= 2 &&
+        length(unique(y_pos_subset$Y_centroid)) >= 2) {
+      contour_plot_yvar <- contour_plot_yvar +
+        geom_density_2d(data = y_pos_subset, aes(x = X_centroid, y = Y_centroid), inherit.aes = FALSE, color = "black", size = 0.35)
+    }
+
+    gridExtra::arrangeGrob(
+      density_plot,
+      overlay_plot2,
+      contour_plot_xvar,
+      contour_plot_yvar,
+      ncol = 2,
+      top = grid::textGrob(
+        paste0("Bivariate: ", xvar, " vs ", yvar),
+        gp = grid::gpar(fontsize = 17, fontface = "bold")
+      )
+    )
+  }
+
+  generate_bivariate_pdf <- function(data, pdf_file_name, marker_pairs, patient_id, gate_overrides = list()) {
+    if (!"imageid" %in% names(data)) {
+      data$imageid <- "sample"
+    }
+
+    pdf(pdf_file_name, width = 14, height = 10, onefile = TRUE)
+    on.exit(dev.off(), add = TRUE)
+
+    if (length(marker_pairs) == 0) {
+      grid::grid.draw(make_pdf_message_grob("No bivariate plots available", "Select at least two markers before downloading all bivariate plots."))
+      return(invisible(pdf_file_name))
+    }
+
+    first_page <- TRUE
+    for (pair in marker_pairs) {
+      page_grob <- tryCatch(
+        generate_bivariate_plot_grob(
+          data = data,
+          patient_id = patient_id,
+          xvar = pair[[1]],
+          yvar = pair[[2]],
+          gate_x_override = gate_overrides[[pair[[1]]]],
+          gate_y_override = gate_overrides[[pair[[2]]]]
+        ),
+        error = function(e) {
+          make_pdf_message_grob(
+            paste0(pair[[1]], " vs ", pair[[2]]),
+            paste("Could not generate this bivariate plot:", conditionMessage(e))
+          )
+        }
+      )
+      if (first_page) {
+        first_page <- FALSE
+      } else {
+        grid::grid.newpage()
+      }
+      grid::grid.draw(page_grob)
+    }
+
+    invisible(pdf_file_name)
+  }
+
+  output$download_bivariate_current <- downloadHandler(
+    filename = function() { "current_bivariate_plot.pdf" },
+    contentType = "application/pdf",
+    content = function(file) {
+      tryCatch({
+        data <- uploaded_df()
+        if (is.null(data) || nrow(data) == 0) {
+          return(write_message_pdf(file, "No bivariate plot", "Upload data and run Randkluft before downloading the current bivariate plot."))
+        }
+
+        xvar <- input$xvar
+        yvar <- input$yvar
+        if (is.null(xvar) || is.null(yvar) || !all(c(xvar, yvar) %in% names(data))) {
+          return(write_message_pdf(file, "No bivariate plot", "Select valid X and Y markers before downloading the current bivariate plot."))
+        }
+
+        if (!"imageid" %in% names(data)) {
+          data$imageid <- "sample"
+        }
+
+        patient_ids <- unique_patients_gating()
+        patient_ids <- patient_ids[patient_ids %in% unique(data$imageid)]
+        if (length(patient_ids) == 0) {
+          patient_ids <- unique(data$imageid)
+        }
+
+        gate_overrides <- list()
+        if (!is.null(react_xgate())) gate_overrides[[xvar]] <- react_xgate()
+        if (!is.null(react_ygate())) gate_overrides[[yvar]] <- react_ygate()
+
+        generate_bivariate_pdf(
+          data = data[data$imageid == patient_ids[1], , drop = FALSE],
+          pdf_file_name = file,
+          marker_pairs = list(c(xvar, yvar)),
+          patient_id = patient_ids[1],
+          gate_overrides = gate_overrides
+        )
+      }, error = function(e) {
+        write_message_pdf(file, "Could not generate current bivariate plot", conditionMessage(e))
+      })
+    }
+  )
+
+  output$download_bivariate_all <- downloadHandler(
+    filename = function() { "all_bivariate_plots.pdf" },
+    contentType = "application/pdf",
+    content = function(file) {
+      tryCatch({
+        data <- uploaded_df()
+        if (is.null(data) || nrow(data) == 0) {
+          return(write_message_pdf(file, "No bivariate plots", "Upload data and run Randkluft before downloading bivariate plots."))
+        }
+
+        markers <- input$selected_columns
+        if (is.null(markers) || length(markers) < 2) {
+          markers <- unique_markers()
+        }
+        markers <- markers[markers %in% names(data)]
+        marker_pairs <- if (length(markers) >= 2) {
+          utils::combn(markers, 2, simplify = FALSE)
+        } else {
+          list()
+        }
+
+        if (!"imageid" %in% names(data)) {
+          data$imageid <- "sample"
+        }
+
+        patient_ids <- unique_patients_gating()
+        patient_ids <- patient_ids[patient_ids %in% unique(data$imageid)]
+        if (length(patient_ids) == 0) {
+          patient_ids <- unique(data$imageid)
+        }
+
+        generate_bivariate_pdf(
+          data = data[data$imageid == patient_ids[1], , drop = FALSE],
+          pdf_file_name = file,
+          marker_pairs = marker_pairs,
+          patient_id = patient_ids[1]
+        )
+      }, error = function(e) {
+        write_message_pdf(file, "Could not generate bivariate plots", conditionMessage(e))
+      })
+    }
+  )
 
   output$plot2 <- renderPlot({
       generatePlotBivar()
@@ -2381,7 +2807,7 @@ observeEvent(c(input$xvar, input$yvar), {
 
         print(colnames(dfplot2))
 
-        patient_selected <- input$patient_number_plot2
+        patient_selected <- unique_patients_gating()[1]
 
         xvar <- input$xvar
         yvar <- input$yvar
@@ -2441,10 +2867,10 @@ observeEvent(c(input$xvar, input$yvar), {
 
         density_values_bi <- get_density(dfplot2[[xvar]], dfplot2[[yvar]], n = 100)
 
-        p <- ggplot(dfplot2, aes(!!input$xvar,!!input$yvar)) + 
+        p <- ggplot(dfplot2, aes(!!input$xvar,!!input$yvar)) +
             geom_vline(xintercept = gate_xvar, color = "orange") +
             geom_hline(yintercept = gate_yvar, color = "orange") +
-            scale_color_viridis(option="turbo") + 
+            scale_color_viridis(option="turbo") +
             geom_point(aes(color = density_values_bi), size = 0.3, alpha = 0.35) +
             theme(
                 legend.position = "none",
@@ -2454,7 +2880,7 @@ observeEvent(c(input$xvar, input$yvar), {
                 panel.background = element_rect(fill = "#f8f8f8"),  # very pale grey for the plotting area
                 plot.background = element_rect(fill = "#f8f8f8")
             ) +
-            labs(title = "Bivariate Density") 
+            labs(title = "Bivariate Density")
 
         p <- p +
             geom_text(x = max(dfplot2[[xvar]])-max(dfplot2[[xvar]])/40, y = max(dfplot2[[yvar]])-max(dfplot2[[yvar]])/40, label = paste(round(prop_pp,3)), color = "red", size = 6) +
@@ -2473,7 +2899,7 @@ observeEvent(c(input$xvar, input$yvar), {
                 )
             ), size = 0.3, alpha = 0.7) +
             scale_color_manual(
-                guide = guide_legend(title = "", override.aes = list(size = 5)),
+                guide = guide_legend(title = "", override.aes = list(size = 7, alpha = 1)),
                 values = c(
                     "+/+" = "red",
                     "-/-" = "grey",
@@ -2487,22 +2913,37 @@ observeEvent(c(input$xvar, input$yvar), {
                 plot.title = element_text(face = "bold", hjust = 0.5, size = 18, family = "Arial"),
                 axis.title = element_text(size = 16, family = "Arial"),
                 axis.text = element_text(size = 14, family = "Arial"),
-                legend.position = "none",
+                legend.position = "bottom",
+                legend.text = element_text(size = 16, family = "Arial"),
+                legend.title = element_text(size = 16, face = "bold", family = "Arial"),
+                legend.key.size = grid::unit(1.2, "cm"),
+                legend.key.width = grid::unit(1.4, "cm"),
+                legend.key.height = grid::unit(0.9, "cm"),
+                legend.spacing.x = grid::unit(0.35, "cm"),
                 panel.background = element_rect(fill = "white"),  # very pale grey for the plotting area
                 plot.background = element_rect(fill = "white")
-            ) 
+            )
 
         prop_above_cutoff_xvar <- sum(dfplot2[[xvar]] > gate_xvar) / nrow(dfplot2)
 
         contour_plot_xvar <- ggplot(dfplot2, aes(x = X_centroid, y = Y_centroid)) +
             geom_point(aes(color = ifelse(dfplot2[[xvar]] > gate_xvar, "Positive", "Negative")), size = 0.3, alpha = 0.35) +
-            scale_color_manual(guide = guide_legend(title = ""), values = c("Positive" = "green", "Negative" = "grey")) +
-            geom_density_2d(data = subset(dfplot2, dfplot2[[xvar]] > gate_xvar), color = 'black') +  
+            scale_color_manual(
+                guide = guide_legend(title = "", override.aes = list(size = 7, alpha = 1)),
+                values = c("Positive" = "green", "Negative" = "grey")
+            ) +
+            geom_density_2d(data = subset(dfplot2, dfplot2[[xvar]] > gate_xvar), color = 'black') +
             theme(
                 plot.title = element_text(face = "bold", hjust = 0.5, size = 18, family = "Arial"),
                 axis.title = element_text(size = 16, family = "Arial"),
                 axis.text = element_text(size = 14, family = "Arial"),
                 legend.position = "bottom",
+                legend.text = element_text(size = 16, family = "Arial"),
+                legend.title = element_text(size = 16, face = "bold", family = "Arial"),
+                legend.key.size = grid::unit(1.2, "cm"),
+                legend.key.width = grid::unit(1.4, "cm"),
+                legend.key.height = grid::unit(0.9, "cm"),
+                legend.spacing.x = grid::unit(0.35, "cm"),
                 panel.background = element_rect(fill = "white"),  # very pale grey for the plotting area
                 plot.background = element_rect(fill = "white")
             ) +
@@ -2512,13 +2953,22 @@ observeEvent(c(input$xvar, input$yvar), {
 
         contour_plot_yvar <- ggplot(dfplot2, aes(x = X_centroid, y = Y_centroid)) +
             geom_point(aes(color = ifelse(dfplot2[[yvar]] > gate_yvar, "Positive", "Negative")), size = 0.3, alpha = 0.35) +
-            scale_color_manual(guide = guide_legend(title = ""), values = c("Positive" = "blue", "Negative" = "grey")) +
-            geom_density_2d(data = subset(dfplot2, dfplot2[[yvar]] > gate_yvar), color = 'black') +  
+            scale_color_manual(
+                guide = guide_legend(title = "", override.aes = list(size = 7, alpha = 1)),
+                values = c("Positive" = "blue", "Negative" = "grey")
+            ) +
+            geom_density_2d(data = subset(dfplot2, dfplot2[[yvar]] > gate_yvar), color = 'black') +
             theme(
                 plot.title = element_text(face = "bold", hjust = 0.5, size = 18, family = "Arial"),
                 axis.title = element_text(size = 16, family = "Arial"),
                 axis.text = element_text(size = 14, family = "Arial"),
                 legend.position = "bottom",
+                legend.text = element_text(size = 16, family = "Arial"),
+                legend.title = element_text(size = 16, face = "bold", family = "Arial"),
+                legend.key.size = grid::unit(1.2, "cm"),
+                legend.key.width = grid::unit(1.4, "cm"),
+                legend.key.height = grid::unit(0.9, "cm"),
+                legend.spacing.x = grid::unit(0.35, "cm"),
                 panel.background = element_rect(fill = "white"),  # very pale grey for the plotting area
                 plot.background = element_rect(fill = "white")
             ) +
@@ -2533,16 +2983,16 @@ observeEvent(c(input$xvar, input$yvar), {
     })
 }
 
-      
+
 generatePlotTrivar <- function() {
 
     output$plot_trivariate <- renderPlotly({
 
-  
+
     dfplot2 <- subsetted_tri()
 
 
-  patient_selected <- input$trivar_patient
+  patient_selected <- unique_patients_gating()[1]
 
     xvar <- input$xvarTri
     yvar <- input$yvarTri
@@ -2590,7 +3040,7 @@ generatePlotTrivar <- function() {
       yaxis = axy,
       zaxis = axz)
       )
-      
+
 
 p
 
@@ -2643,9 +3093,9 @@ observeEvent(input$update_gates_bivariate, {
 
   p <- ggplot(dfplot3, aes(!!input$xvar, !!input$yvar)) +
     theme(legend.position = "bottom") +
-    geom_point(aes(color = imageid)) 
-   
-  p <- p + 
+    geom_point(aes(color = imageid))
+
+  p <- p +
     geom_vline(aes(xintercept = result_to_plot_x$cutoff), color = "red") +
     geom_hline(aes(yintercept = result_to_plot_y$cutoff), color = "red")
 
@@ -2656,7 +3106,7 @@ observeEvent(input$update_gates_bivariate, {
 
  output$marker_checkboxes <- renderUI({
     marker_data <- input$selected_columns
-    
+
     if (is.null(marker_data) || length(marker_data) == 0) {
       return(NULL) # If no markers are selected or available, return NULL
     }
@@ -2670,7 +3120,7 @@ observeEvent(input$update_gates_bivariate, {
         column(2, materialSwitch(paste0("switch_", marker), label = NULL, status = "success"))
       )
     })
-    
+
     tagList(switch_list)
 
   })
@@ -2692,7 +3142,7 @@ observeEvent(input$update_gates_bivariate, {
     })
     return(markers_statuses)
   })
-  
+
   # Track phenotype name
   phenotype_name <- reactive({
     input$phenotype_name
@@ -2716,7 +3166,7 @@ cleanColumnNames <- function(dataframe) {
   names(dataframe) <- gsub("\\.+|\\s+", "", names(dataframe))
   return(dataframe)
 }
-  
+
 
 phenotype_wfl_reactive <- reactiveVal(NULL)
 # Define the reactive dataframe for phenotypes
@@ -2738,12 +3188,12 @@ updatePhenotypeDF <- function(phenotype, markers) {
 # Function to update the phenotype dataframe
 updatePhenotypeDF2 <- function(phenotype, markers) {
   current_df <- phenotype_df()
-  
+
   # Split the concatenated string by newline and clean the values
   cleaned_markers <- unlist(strsplit(markers, "\n"))
   cleaned_markers <- gsub("NULL,?\\s*", "", cleaned_markers)  # Remove "NULL"
   cleaned_markers <- gsub("^\\s+|\\s+$", "", cleaned_markers)  # Trim leading/trailing spaces
-  
+
   # Bind the phenotype and markers into the dataframe
   updated_df <- rbind(current_df, data.frame(phenotype = phenotype, markers = paste(cleaned_markers, collapse = ", ")))
   phenotype_df(updated_df)
@@ -2760,7 +3210,7 @@ updatePhenotypeDF3 <- function(phenotype_name, phenotype_markers) {
   cleanPhenotype <- function(phenotype_output) {
   # Split the output string by newline character
   phenotype_list <- strsplit(phenotype_output, "\n")[[1]]
-  
+
   # Remove the NULL values and extract the relevant information
   cleaned_phenotype <- lapply(phenotype_list, function(phenotype) {
     parts <- unlist(strsplit(phenotype, ", "))  # Split by ", "
@@ -2768,14 +3218,14 @@ updatePhenotypeDF3 <- function(phenotype_name, phenotype_markers) {
     cleaned_phenotype <- paste(cleaned_parts, collapse = ", ")  # Recreate the string
     return(cleaned_phenotype)
   })
-  
+
   return(cleaned_phenotype)
 }
 
 cleanPhenotype2 <- function(phenotype_output) {
   # Split the output string by newline character
   phenotype_list <- strsplit(phenotype_output, "\n")[[1]]
-  
+
   # Remove the NULL values and extract the relevant information
   cleaned_phenotype <- lapply(phenotype_list, function(phenotype) {
     parts <- unlist(strsplit(phenotype, ", "))  # Split by ", "
@@ -2784,14 +3234,14 @@ cleanPhenotype2 <- function(phenotype_output) {
     cleaned_phenotype <- paste(cleaned_parts, collapse = ", ")  # Recreate the string
     return(cleaned_phenotype)
   })
-  
+
   return(cleaned_phenotype)
 }
 
 cleanPhenotype3 <- function(phenotype_output) {
   # Split the output string by newline character
   phenotype_list <- strsplit(phenotype_output, "\n")[[1]]
-  
+
   # Remove the NULL values and extract the relevant information
   cleaned_phenotype <- lapply(phenotype_list, function(phenotype) {
     parts <- unlist(strsplit(phenotype, ", "))  # Split by ", "
@@ -2799,7 +3249,7 @@ cleanPhenotype3 <- function(phenotype_output) {
     cleaned_phenotype <- paste(cleaned_parts, collapse = ", ")  # Recreate the string
     return(cleaned_phenotype)
   })
-  
+
   return(cleaned_phenotype)
 }
 
@@ -2811,25 +3261,25 @@ subsetAndCount <- function(df, phenotype_df) {
     markers <- markers[markers != ""]  # Remove empty elements
     positive_markers <- markers[grepl("\\+", markers)]
     negative_markers <- markers[grepl("-", markers)]
-    
+
     conditions <- lapply(positive_markers, function(marker) {
       marker <- gsub("[+,]", "", marker)
       paste0(marker, "_positivity == '+'")
     })
-    
+
     neg_conditions <- lapply(negative_markers, function(marker) {
       marker <- gsub("[-,]", "", marker)
       paste0(marker, "_positivity == '-'")
     })
-    
+
     all_conditions <- c(conditions, neg_conditions)
     combined_conditions <- paste(all_conditions, collapse = " & ")
 
     print("combined_conditions below")
     print(combined_conditions)
-    
-    subset_df <- subset(df, subset = eval(parse(text = combined_conditions))) 
-    
+
+    subset_df <- subset(df, subset = eval(parse(text = combined_conditions)))
+
     #  Assign phenotype to the filtered cells in the original dataset
     if (nrow(subset_df) > 0) {
       original_df[rownames(subset_df), 'phenotype'] <- phenotype_df[i, 'phenotype']
@@ -2843,7 +3293,7 @@ subsetAndCount <- function(df, phenotype_df) {
   # Find rows that don't satisfy any defined conditions and count them as 'other'
   other_count <- nrow(df) - sum(unlist(phenotype_counts))
   phenotype_counts <- c(phenotype_counts, other = other_count)
-  
+
   names(phenotype_counts) <- c(phenotype_df$phenotype, 'other')
   print(phenotype_counts)
   return(phenotype_counts)
@@ -2941,7 +3391,7 @@ subsetAndCount <- function(df, phenotype_df) {
             # Combine the message and MLE statistics
             paste(message, mle_statistics, sep = "\n")  # Use <br> to insert a line break
 
-          }) 
+          })
 
         # bootstrap
 
@@ -2964,34 +3414,21 @@ subsetAndCount <- function(df, phenotype_df) {
     inFile <- input$phen_wfl
 
     df <- read.csv(inFile$datapath, stringsAsFactors = FALSE)
-    
+
     # Check for valid columns in the uploaded file
     if ("phenotype" %in% names(df) && "markers" %in% names(df)) {
       # phenotype_df_LOADED <<- bind_rows(phenotype_df_LOADED, df) %>%
       #   distinct()  # Remove duplicate rows if any
-      
+
       phenotype_df(df)
     }
-    
+
   output$phenotypeTable <- renderTable({
     phenotype_df()
   })
 
   }
   )
- 
-
-# In the UI, use conditionalPanel to conditionally render the plot
-conditionalPanel(
-  condition = "input.patient_number_plot2.length > 0",
-  plotOutput("plot2")
-)  
-
-conditionalPanel(
-  condition = "input.patient_number_plot2.length > 0",
-  plotlyOutput("plot3")
-)  
-
 
       })
 
