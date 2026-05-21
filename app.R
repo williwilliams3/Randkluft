@@ -1039,9 +1039,6 @@ sub_data_logged <- reactiveVal(NULL)
         cat("Working with logged values\n")
       }
 
-      print("crash")
-
-
       uploaded_intermediate$imageid <- rep("sample", nrow(uploaded_intermediate))
       uploaded_df(uploaded_intermediate)
       if (any(c("DNA1", "DNA_1", "DAPI1", "DAPI_1", "Hoechst1", "Hoechst_1") %in% colnames(uploaded_df()))) {
@@ -1973,15 +1970,27 @@ generate_histogram_pdf <- function(subdata_to_plot, pdf_file_name, markers = NUL
 })
 
 
-   observe({
+ observe({
     updateSelectInput(session, "xvar", choices = unique_markers())
 })
 
 
+ selected_var_name <- function(value) {
+    if (is.null(value) || length(value) == 0) {
+      return(NULL)
+    }
+    value <- as.character(value)
+    if (length(value) == 0 || is.na(value[1]) || value[1] == "") {
+      return(NULL)
+    }
+    value[1]
+ }
+
  observe({
     markers <- unique_markers()
-    selected_yvar <- if (!is.null(input$yvar) && input$yvar %in% markers) {
-      input$yvar
+    current_yvar <- selected_var_name(input$yvar)
+    selected_yvar <- if (!is.null(current_yvar) && current_yvar %in% markers) {
+      current_yvar
     } else {
       markers[min(2, length(markers))]
     }
