@@ -1295,8 +1295,6 @@ observeEvent(input$prevMarker, {
     print(current_marker())
 
 
-    histogram_plot <- plot_gating_grid(df, selected_patients_reactively[current_patient()], column_indices[current_marker()])
-
       selected_columns_man <- input$selected_columns
       selected_patients_man <- unique_patients_gating()
 
@@ -1332,6 +1330,8 @@ gate_value <- resultdf_reactive()$Gate[
 if (!is.null(outputinterceptreactive())) {
   gate_value <- outputinterceptreactive()
 }
+
+histogram_plot <- make_marker_histogram_plot(df, chosen_patient, chosen_marker, gate_value, title_size = 18)
 
 temp_df <- filtered_data_xy
 temp_df[[chosen_marker]][temp_df[[chosen_marker]] < gate_value] <- 0
@@ -1378,8 +1378,17 @@ if (nrow(pos_subset_gp) >= 2) {
 }
 overlay_plot2 <- ggplot(filtered_data_xy, aes(x = X_centroid, y = Y_centroid)) +
   geom_point(aes(color = ifelse(filtered_data_xy[[chosen_marker]] > gate_value, "Positive", "Negative")), size = 0.3, alpha = 0.35) +
-  scale_color_manual(guide = guide_legend(title = ""), values = c("Positive" = "red", "Negative" = "grey")) +
-  theme(legend.position = "none",
+  scale_color_manual(
+    guide = guide_legend(title = "", override.aes = list(size = 7, alpha = 1)),
+    values = c("Positive" = "red", "Negative" = "grey")
+  ) +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size = 16, family = "Arial"),
+        legend.title = element_text(size = 16, face = "bold", family = "Arial"),
+        legend.key.size = grid::unit(1.2, "cm"),
+        legend.key.width = grid::unit(1.4, "cm"),
+        legend.key.height = grid::unit(0.9, "cm"),
+        legend.spacing.x = grid::unit(0.35, "cm"),
         plot.title = element_text(face = "bold", hjust = 0.5, size = 18, family = "Arial"),
         axis.title = element_text(size = 16, family = "Arial"),
         axis.text = element_text(size = 14, family = "Arial"),
@@ -1502,7 +1511,7 @@ make_pdf_message_grob <- function(title, message) {
   )
 }
 
-write_message_pdf <- function(file, title, message, width = 11, height = 8.5) {
+write_message_pdf <- function(file, title, message, width = 10, height = 10) {
   pdf(file, width = width, height = height, onefile = TRUE)
   on.exit(dev.off(), add = TRUE)
   grid::grid.draw(make_pdf_message_grob(title, message))
@@ -1536,7 +1545,7 @@ resolve_gate_value <- function(patient_id, marker, data) {
   gate_value
 }
 
-make_marker_histogram_plot <- function(data, patient_id, marker, gate_value) {
+make_marker_histogram_plot <- function(data, patient_id, marker, gate_value, title_size = 15) {
   target <- suppressWarnings(as.numeric(data[data$imageid == patient_id, marker]))
   target <- target[is.finite(target)]
 
@@ -1575,9 +1584,10 @@ make_marker_histogram_plot <- function(data, patient_id, marker, gate_value) {
     ) +
     theme_minimal(base_family = "sans") +
     theme(
-      plot.title = element_text(face = "bold", hjust = 0.5, size = 15),
-      plot.subtitle = element_text(hjust = 0.5, size = 10),
-      panel.grid.minor = element_blank()
+      plot.title = element_text(face = "bold", hjust = 0.5, size = title_size),
+      plot.subtitle = element_text(hjust = 0.5, size = title_size),
+      panel.grid.minor = element_blank(),
+      aspect.ratio = 1
     )
 
   if (length(unique(target)) > 1) {
@@ -1643,30 +1653,69 @@ generate_four_panel_plot <- function(data, patient_id, marker) {
   spatial_theme <- theme_minimal(base_family = "sans") +
     theme(
       plot.title = element_text(face = "bold", hjust = 0.5, size = 15),
+      axis.title = element_text(size = 11),
+      axis.text = element_text(size = 9),
+      panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
-      legend.position = "bottom"
+      legend.position = "bottom",
+      legend.title = element_text(size = 12, face = "bold"),
+      legend.text = element_text(size = 12),
+      legend.key.size = grid::unit(0.9, "cm"),
+      legend.key.width = grid::unit(1.1, "cm"),
+      legend.key.height = grid::unit(0.75, "cm"),
+      legend.spacing.x = grid::unit(0.35, "cm"),
+      aspect.ratio = 1
     )
 
+  digital_theme <- theme(
+    legend.position = "none",
+    plot.title = element_text(face = "bold", hjust = 0.5, size = 15),
+    axis.title = element_text(size = 11),
+    axis.text = element_text(size = 9),
+    panel.background = element_rect(fill = "black"),
+    plot.background = element_rect(fill = "white"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    aspect.ratio = 1
+  )
+
+  density_inside_legend_theme <- theme(
+    legend.position = c(0.98, 0.98),
+    legend.justification = c(1, 1),
+    legend.background = element_rect(
+      fill = alpha("white", 0.7),
+      color = "grey70"
+    ),
+    legend.key.height = grid::unit(12, "pt"),
+    legend.key.width = grid::unit(6, "pt"),
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 9)
+  )
+
   digrepresentation <- ggplot(filtered_data_xy, aes(x = X_centroid, y = Y_centroid, color = .data[[marker]])) +
-    geom_point(shape = 20, size = 0.35, alpha = 0.55) +
-    scale_color_viridis(option = "turbo", name = "Intensity") +
+    geom_point(shape = 20, size = 0.16, alpha = 0.5) +
+    scale_color_gradient(low = "grey30", high = "white", guide = "none") +
     labs(title = "Digital Representation", x = "X Centroid", y = "Y Centroid") +
-    spatial_theme
+    digital_theme
 
   pos_subset <- filtered_data_xy[is_positive, , drop = FALSE]
   contour_plot <- ggplot(filtered_data_xy, aes(x = X_centroid, y = Y_centroid)) +
-    geom_point(aes(color = pdf_density), size = 0.35, alpha = 0.45) +
-    scale_color_viridis(option = "turbo", name = "Density") +
+    geom_point(aes(color = pdf_density), size = 0.16, alpha = 0.35) +
+    scale_color_viridis(option = "turbo", name = "Intensity") +
     labs(title = "Positive Density", x = "X Centroid", y = "Y Centroid") +
-    spatial_theme
+    spatial_theme +
+    density_inside_legend_theme
   if (nrow(pos_subset) >= 2) {
     contour_plot <- contour_plot +
       geom_density_2d(data = pos_subset, aes(x = X_centroid, y = Y_centroid), inherit.aes = FALSE, color = "black", size = 0.35)
   }
 
   overlay_plot2 <- ggplot(filtered_data_xy, aes(x = X_centroid, y = Y_centroid, color = gate_status)) +
-    geom_point(size = 0.35, alpha = 0.5) +
-    scale_color_manual(guide = guide_legend(title = ""), values = c("Positive" = "#c0392b", "Negative" = "grey70")) +
+    geom_point(size = 0.16, alpha = 0.35) +
+    scale_color_manual(
+      guide = guide_legend(title = "", override.aes = list(size = 4.5, alpha = 1)),
+      values = c("Positive" = "red", "Negative" = "grey")
+    ) +
     labs(title = "Positive Cells", x = "X Centroid", y = "Y Centroid") +
     spatial_theme
 
@@ -1700,7 +1749,7 @@ generate_histogram_pdf <- function(subdata_to_plot, pdf_file_name, markers = NUL
   }
   patient_ids <- patient_ids[patient_ids %in% unique(data$imageid)]
 
-  pdf(file = pdf_file_name, width = 14, height = 10, onefile = TRUE)
+  pdf(file = pdf_file_name, width = 10, height = 10, onefile = TRUE)
   on.exit(dev.off(), add = TRUE)
 
   if (length(markers) == 0 || length(patient_ids) == 0) {
@@ -1930,7 +1979,13 @@ generate_histogram_pdf <- function(subdata_to_plot, pdf_file_name, markers = NUL
 
 
  observe({
-    updateSelectInput(session, "yvar", choices = unique_markers())
+    markers <- unique_markers()
+    selected_yvar <- if (!is.null(input$yvar) && input$yvar %in% markers) {
+      input$yvar
+    } else {
+      markers[min(2, length(markers))]
+    }
+    updateSelectInput(session, "yvar", choices = markers, selected = selected_yvar)
 })
 
 
@@ -2557,11 +2612,14 @@ observeEvent(c(input$xvar, input$yvar), {
     if (!is.finite(x_pad) || x_pad == 0) x_pad <- 1
     if (!is.finite(y_pad) || y_pad == 0) y_pad <- 1
 
+    pdf_point_size <- 0.16
+
     pdf_theme <- theme_minimal(base_family = "sans") +
       theme(
         plot.title = element_text(face = "bold", hjust = 0.5, size = 15),
         axis.title = element_text(size = 11),
         axis.text = element_text(size = 9),
+        panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         legend.position = "bottom",
         legend.title = element_text(size = 12, face = "bold"),
@@ -2569,22 +2627,25 @@ observeEvent(c(input$xvar, input$yvar), {
         legend.key.size = grid::unit(0.9, "cm"),
         legend.key.width = grid::unit(1.1, "cm"),
         legend.key.height = grid::unit(0.75, "cm"),
-        legend.spacing.x = grid::unit(0.35, "cm")
+        legend.spacing.x = grid::unit(0.35, "cm"),
+        aspect.ratio = 1
       )
 
+    density_theme <- theme(
+      legend.position = "none",
+      plot.title = element_text(face = "bold", hjust = 0.5, size = 15),
+      axis.title = element_text(size = 11),
+      axis.text = element_text(size = 9),
+      panel.background = element_rect(fill = "#f8f8f8"),
+      plot.background = element_rect(fill = "#f8f8f8"),
+      aspect.ratio = 1
+    )
+
     density_plot <- ggplot(dfplot2, aes(x = .data[[xvar]], y = .data[[yvar]])) +
-      geom_point(aes(color = density_values_bi), size = 0.35, alpha = 0.45) +
-      scale_color_viridis(
-        option = "turbo",
-        name = "Density",
-        guide = guide_colorbar(
-          title.position = "top",
-          barwidth = grid::unit(4.5, "cm"),
-          barheight = grid::unit(0.4, "cm")
-        )
-      ) +
+      geom_point(aes(color = density_values_bi), size = pdf_point_size, alpha = 0.35) +
+      scale_color_viridis(option = "turbo") +
       labs(title = "Bivariate Density", x = xvar, y = yvar) +
-      pdf_theme
+      density_theme
     if (is.finite(gate_xvar)) {
       density_plot <- density_plot + geom_vline(xintercept = gate_xvar, color = "orange", size = 0.7)
     }
@@ -2605,7 +2666,7 @@ observeEvent(c(input$xvar, input$yvar), {
     )
 
     overlay_plot2 <- ggplot(dfplot2, aes(x = X_centroid, y = Y_centroid, color = bivariate_gate_status)) +
-      geom_point(size = 0.35, alpha = 0.55) +
+      geom_point(size = pdf_point_size, alpha = 0.55) +
       scale_color_manual(
         guide = guide_legend(title = "", override.aes = list(size = 4.5, alpha = 1)),
         values = c("+/+" = "red", "-/-" = "grey70", "+/-" = "green4", "-/+" = "blue")
@@ -2616,7 +2677,7 @@ observeEvent(c(input$xvar, input$yvar), {
     prop_above_cutoff_xvar <- sum(is_x_pos) / nrow(dfplot2)
     dfplot2$x_status <- ifelse(is_x_pos, "Positive", "Negative")
     contour_plot_xvar <- ggplot(dfplot2, aes(x = X_centroid, y = Y_centroid, color = x_status)) +
-      geom_point(size = 0.35, alpha = 0.45) +
+      geom_point(size = pdf_point_size, alpha = 0.35) +
       scale_color_manual(
         guide = guide_legend(title = "", override.aes = list(size = 4.5, alpha = 1)),
         values = c("Positive" = "green4", "Negative" = "grey70")
@@ -2634,7 +2695,7 @@ observeEvent(c(input$xvar, input$yvar), {
     prop_above_cutoff_yvar <- sum(is_y_pos) / nrow(dfplot2)
     dfplot2$y_status <- ifelse(is_y_pos, "Positive", "Negative")
     contour_plot_yvar <- ggplot(dfplot2, aes(x = X_centroid, y = Y_centroid, color = y_status)) +
-      geom_point(size = 0.35, alpha = 0.45) +
+      geom_point(size = pdf_point_size, alpha = 0.35) +
       scale_color_manual(
         guide = guide_legend(title = "", override.aes = list(size = 4.5, alpha = 1)),
         values = c("Positive" = "blue", "Negative" = "grey70")
@@ -2667,7 +2728,7 @@ observeEvent(c(input$xvar, input$yvar), {
       data$imageid <- "sample"
     }
 
-    pdf(pdf_file_name, width = 14, height = 10, onefile = TRUE)
+    pdf(pdf_file_name, width = 10, height = 10, onefile = TRUE)
     on.exit(dev.off(), add = TRUE)
 
     if (length(marker_pairs) == 0) {

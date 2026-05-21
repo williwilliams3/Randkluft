@@ -1,5 +1,4 @@
 
-setwd("/Users/bwilliams/git-hub/amiryousefi-lab/Creavasse")
 df <- read.csv("data/scaled.csv")
 column_index = c(1:4, 6:8, 10:12, 14:21, 23:24)
 unique_id = unique(df$imageid)
