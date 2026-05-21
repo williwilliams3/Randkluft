@@ -40,11 +40,11 @@ library(gridExtra)
 # source codes
 source("utils.R")
 
-df_example = read.csv('exemplar-001--unmicst_cell.csv')
+df_example = read.csv(file.path("data", "exemplar-001--unmicst_cell.csv"))
 
-ground_truth_gates_loaded = read.csv('tuulia_data_GT.csv')
+ground_truth_gates_loaded = read.csv(file.path("data", "tuulia_data_GT.csv"))
 
-df_example_PHENOTYPE = read.csv("phenotype_table_help.csv")
+df_example_PHENOTYPE = read.csv(file.path("data", "phenotype_table_help.csv"))
 
 options(shiny.trace = TRUE,
         shiny.maxRequestSize = 30 * 1024 ^ 3) # change max file limit
