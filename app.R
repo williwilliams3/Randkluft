@@ -2617,42 +2617,87 @@ observeEvent(c(input$xvar, input$yvar), {
     gate_value
   }
 
-  generate_bivariate_plot_grob <- function(data, patient_id, xvar, yvar, gate_x_override = NULL, gate_y_override = NULL) {
-    if (!all(c(xvar, yvar) %in% names(data))) {
-      return(make_pdf_message_grob(
-        paste0(xvar, " vs ", yvar),
+  prepare_bivariate_patient_data <- function(data, patient_id, markers) {
+    if (!"imageid" %in% names(data)) {
+      data$imageid <- "sample"
+    }
+
+    patient_data <- data[data$imageid == patient_id, , drop = FALSE]
+    if (nrow(patient_data) == 0) {
+      return(patient_data)
+    }
+
+    if (!all(c("X_centroid", "Y_centroid") %in% names(patient_data))) {
+      grid_width <- max(1, ceiling(sqrt(nrow(patient_data))))
+      patient_data$X_centroid <- ((seq_len(nrow(patient_data)) - 1) %% grid_width) + 1
+      patient_data$Y_centroid <- ((seq_len(nrow(patient_data)) - 1) %/% grid_width) + 1
+    }
+
+    numeric_columns <- unique(c("X_centroid", "Y_centroid", markers))
+    numeric_columns <- numeric_columns[numeric_columns %in% names(patient_data)]
+    patient_data[numeric_columns] <- lapply(patient_data[numeric_columns], function(values) {
+      suppressWarnings(as.numeric(values))
+    })
+    patient_data
+  }
+
+  precompute_bivariate_gates <- function(data, patient_id, markers, gate_overrides = list()) {
+    markers <- unique(markers[markers %in% names(data)])
+    stats::setNames(
+      vapply(markers, function(marker) {
+        resolve_bivariate_gate_value(data, patient_id, marker, gate_overrides[[marker]])
+      }, numeric(1)),
+      markers
+    )
+  }
+
+  get_precomputed_bivariate_gate <- function(gate_values, marker, data, patient_id, override = NULL) {
+    if (!is.null(gate_values) && marker %in% names(gate_values)) {
+      return(as.numeric(gate_values[[marker]][1]))
+    }
+    resolve_bivariate_gate_value(data, patient_id, marker, override)
+  }
+
+  bivariate_pair_error <- function(xvar, yvar, message) {
+    list(xvar = xvar, yvar = yvar, error = message)
+  }
+
+  prepare_bivariate_pair_data <- function(patient_data, patient_id, xvar, yvar,
+                                          gate_values = NULL,
+                                          gate_x_override = NULL,
+                                          gate_y_override = NULL) {
+    if (!all(c(xvar, yvar) %in% names(patient_data))) {
+      return(bivariate_pair_error(
+        xvar,
+        yvar,
         "One or both selected markers are not available in the current data."
       ))
     }
+    if (nrow(patient_data) == 0) {
+      return(bivariate_pair_error(xvar, yvar, "No data available for this plot."))
+    }
 
-    dfplot2 <- data[data$imageid == patient_id, , drop = FALSE]
+    complete_rows <- complete.cases(
+      patient_data[[xvar]],
+      patient_data[[yvar]],
+      patient_data$X_centroid,
+      patient_data$Y_centroid
+    )
+    finite_rows <- is.finite(patient_data[[xvar]]) &
+      is.finite(patient_data[[yvar]]) &
+      is.finite(patient_data$X_centroid) &
+      is.finite(patient_data$Y_centroid)
+    dfplot2 <- patient_data[complete_rows & finite_rows, , drop = FALSE]
     if (nrow(dfplot2) == 0) {
-      return(make_pdf_message_grob(paste0(xvar, " vs ", yvar), "No data available for this plot."))
+      return(bivariate_pair_error(xvar, yvar, "No finite values available for this plot."))
     }
 
-    if (!all(c("X_centroid", "Y_centroid") %in% names(dfplot2))) {
-      grid_width <- max(1, ceiling(sqrt(nrow(dfplot2))))
-      dfplot2$X_centroid <- ((seq_len(nrow(dfplot2)) - 1) %% grid_width) + 1
-      dfplot2$Y_centroid <- ((seq_len(nrow(dfplot2)) - 1) %/% grid_width) + 1
-    }
-
-    dfplot2[[xvar]] <- suppressWarnings(as.numeric(dfplot2[[xvar]]))
-    dfplot2[[yvar]] <- suppressWarnings(as.numeric(dfplot2[[yvar]]))
-    dfplot2$X_centroid <- suppressWarnings(as.numeric(dfplot2$X_centroid))
-    dfplot2$Y_centroid <- suppressWarnings(as.numeric(dfplot2$Y_centroid))
-
-    complete_rows <- complete.cases(dfplot2[[xvar]], dfplot2[[yvar]], dfplot2$X_centroid, dfplot2$Y_centroid)
-    finite_rows <- is.finite(dfplot2[[xvar]]) & is.finite(dfplot2[[yvar]]) &
-      is.finite(dfplot2$X_centroid) & is.finite(dfplot2$Y_centroid)
-    dfplot2 <- dfplot2[complete_rows & finite_rows, , drop = FALSE]
-
-    if (nrow(dfplot2) == 0) {
-      return(make_pdf_message_grob(paste0(xvar, " vs ", yvar), "No finite values available for this plot."))
-    }
-
-    gate_xvar <- resolve_bivariate_gate_value(data, patient_id, xvar, gate_x_override)
-    gate_yvar <- resolve_bivariate_gate_value(data, patient_id, yvar, gate_y_override)
-
+    gate_xvar <- get_precomputed_bivariate_gate(
+      gate_values, xvar, patient_data, patient_id, gate_x_override
+    )
+    gate_yvar <- get_precomputed_bivariate_gate(
+      gate_values, yvar, patient_data, patient_id, gate_y_override
+    )
     if (xvar == yvar) {
       if (!is.null(gate_x_override)) {
         gate_yvar <- gate_xvar
@@ -2666,16 +2711,18 @@ observeEvent(c(input$xvar, input$yvar), {
     is_x_pos[is.na(is_x_pos)] <- FALSE
     is_y_pos[is.na(is_y_pos)] <- FALSE
 
-    num_points <- nrow(dfplot2)
-    prop_pp <- sum(is_x_pos & is_y_pos) / num_points
-    prop_pm <- sum(is_x_pos & !is_y_pos) / num_points
-    prop_mp <- sum(!is_x_pos & is_y_pos) / num_points
-    prop_mm <- sum(!is_x_pos & !is_y_pos) / num_points
-
-    density_values_bi <- tryCatch(
+    dfplot2$bivariate_density <- tryCatch(
       get_density(dfplot2[[xvar]], dfplot2[[yvar]], n = 100),
       error = function(e) rep(0, nrow(dfplot2))
     )
+    dfplot2$bivariate_gate_status <- dplyr::case_when(
+      is_x_pos & is_y_pos ~ "+/+",
+      is_x_pos & !is_y_pos ~ "+/-",
+      !is_x_pos & is_y_pos ~ "-/+",
+      TRUE ~ "-/-"
+    )
+    dfplot2$x_status <- ifelse(is_x_pos, "Positive", "Negative")
+    dfplot2$y_status <- ifelse(is_y_pos, "Positive", "Negative")
 
     x_range <- range(dfplot2[[xvar]], na.rm = TRUE)
     y_range <- range(dfplot2[[yvar]], na.rm = TRUE)
@@ -2684,9 +2731,30 @@ observeEvent(c(input$xvar, input$yvar), {
     if (!is.finite(x_pad) || x_pad == 0) x_pad <- 1
     if (!is.finite(y_pad) || y_pad == 0) y_pad <- 1
 
-    pdf_point_size <- 0.16
+    list(
+      data = dfplot2,
+      patient_id = patient_id,
+      xvar = xvar,
+      yvar = yvar,
+      gate_xvar = gate_xvar,
+      gate_yvar = gate_yvar,
+      x_positive = is_x_pos,
+      y_positive = is_y_pos,
+      x_range = x_range,
+      y_range = y_range,
+      x_pad = x_pad,
+      y_pad = y_pad,
+      proportions = c(
+        pp = sum(is_x_pos & is_y_pos) / nrow(dfplot2),
+        pm = sum(is_x_pos & !is_y_pos) / nrow(dfplot2),
+        mp = sum(!is_x_pos & is_y_pos) / nrow(dfplot2),
+        mm = sum(!is_x_pos & !is_y_pos) / nrow(dfplot2)
+      )
+    )
+  }
 
-    pdf_theme <- theme_minimal(base_family = "sans") +
+  bivariate_pdf_theme <- function() {
+    theme_minimal(base_family = "sans") +
       theme(
         plot.title = element_text(face = "bold", hjust = 0.5, size = 15),
         axis.title = element_text(size = 11),
@@ -2702,8 +2770,10 @@ observeEvent(c(input$xvar, input$yvar), {
         legend.spacing.x = grid::unit(0.35, "cm"),
         aspect.ratio = 1
       )
+  }
 
-    density_theme <- theme(
+  bivariate_density_pdf_theme <- function() {
+    theme(
       legend.position = "none",
       plot.title = element_text(face = "bold", hjust = 0.5, size = 15),
       axis.title = element_text(size = 11),
@@ -2712,30 +2782,106 @@ observeEvent(c(input$xvar, input$yvar), {
       plot.background = element_rect(fill = "#f8f8f8"),
       aspect.ratio = 1
     )
+  }
+
+  make_bivariate_marker_pdf_plot <- function(data, marker, gate_value, positive_color,
+                                             pdf_theme, pdf_point_size = 0.16) {
+    if (!all(c(marker, "X_centroid", "Y_centroid") %in% names(data))) {
+      return(make_pdf_message_grob(marker, "Marker data are not available for this plot."))
+    }
+
+    marker_rows <- complete.cases(data[[marker]], data$X_centroid, data$Y_centroid) &
+      is.finite(data[[marker]]) &
+      is.finite(data$X_centroid) &
+      is.finite(data$Y_centroid)
+    marker_data <- data[marker_rows, , drop = FALSE]
+    if (nrow(marker_data) == 0) {
+      return(make_pdf_message_grob(marker, "No finite marker values available for this plot."))
+    }
+
+    is_positive <- if (is.finite(gate_value)) marker_data[[marker]] > gate_value else rep(FALSE, nrow(marker_data))
+    is_positive[is.na(is_positive)] <- FALSE
+    marker_data$marker_status <- ifelse(is_positive, "Positive", "Negative")
+    prop_positive <- sum(is_positive) / nrow(marker_data)
+
+    marker_plot <- ggplot(marker_data, aes(x = X_centroid, y = Y_centroid, color = marker_status)) +
+      geom_point(size = pdf_point_size, alpha = 0.35) +
+      scale_color_manual(
+        guide = guide_legend(title = "", override.aes = list(size = 4.5, alpha = 1)),
+        values = c("Positive" = positive_color, "Negative" = "grey70")
+      ) +
+      labs(title = paste0(marker, "+ cells = ", round(prop_positive, 3)), x = "X Centroid", y = "Y Centroid") +
+      pdf_theme
+
+    pos_subset <- marker_data[is_positive, , drop = FALSE]
+    if (nrow(pos_subset) >= 2 &&
+        length(unique(pos_subset$X_centroid)) >= 2 &&
+        length(unique(pos_subset$Y_centroid)) >= 2) {
+      marker_plot <- marker_plot +
+        geom_density_2d(data = pos_subset, aes(x = X_centroid, y = Y_centroid), inherit.aes = FALSE, color = "black", size = 0.35)
+    }
+    marker_plot
+  }
+
+  precompute_bivariate_marker_pdf_panels <- function(data, markers, gate_values,
+                                                     pdf_theme, pdf_point_size = 0.16) {
+    as_pdf_grob <- function(plot) {
+      if (inherits(plot, "ggplot")) {
+        return(ggplot2::ggplotGrob(plot))
+      }
+      plot
+    }
+
+    stats::setNames(
+      lapply(markers, function(marker) {
+        gate_value <- gate_values[[marker]]
+        list(
+          x_plot = as_pdf_grob(make_bivariate_marker_pdf_plot(data, marker, gate_value, "green4", pdf_theme, pdf_point_size)),
+          y_plot = as_pdf_grob(make_bivariate_marker_pdf_plot(data, marker, gate_value, "blue", pdf_theme, pdf_point_size))
+        )
+      }),
+      markers
+    )
+  }
+
+  get_bivariate_marker_pdf_panel <- function(marker_panels, marker, axis, pair_data,
+                                             pdf_theme, pdf_point_size = 0.16) {
+    if (!is.null(marker_panels) && marker %in% names(marker_panels)) {
+      return(marker_panels[[marker]][[paste0(axis, "_plot")]])
+    }
+
+    gate_value <- if (axis == "x") pair_data$gate_xvar else pair_data$gate_yvar
+    positive_color <- if (axis == "x") "green4" else "blue"
+    make_bivariate_marker_pdf_plot(pair_data$data, marker, gate_value, positive_color, pdf_theme, pdf_point_size)
+  }
+
+  generate_bivariate_plot_grob <- function(pair_data, marker_panels = NULL) {
+    if (!is.null(pair_data$error)) {
+      return(make_pdf_message_grob(paste0(pair_data$xvar, " vs ", pair_data$yvar), pair_data$error))
+    }
+
+    dfplot2 <- pair_data$data
+    xvar <- pair_data$xvar
+    yvar <- pair_data$yvar
+    pdf_point_size <- 0.16
+    pdf_theme <- bivariate_pdf_theme()
 
     density_plot <- ggplot(dfplot2, aes(x = .data[[xvar]], y = .data[[yvar]])) +
-      geom_point(aes(color = density_values_bi), size = pdf_point_size, alpha = 0.35) +
+      geom_point(aes(color = bivariate_density), size = pdf_point_size, alpha = 0.35) +
       scale_color_viridis(option = "turbo") +
       labs(title = "Bivariate Density", x = xvar, y = yvar) +
-      density_theme
-    if (is.finite(gate_xvar)) {
-      density_plot <- density_plot + geom_vline(xintercept = gate_xvar, color = "orange", size = 0.7)
+      bivariate_density_pdf_theme()
+    if (is.finite(pair_data$gate_xvar)) {
+      density_plot <- density_plot + geom_vline(xintercept = pair_data$gate_xvar, color = "orange", size = 0.7)
     }
-    if (is.finite(gate_yvar)) {
-      density_plot <- density_plot + geom_hline(yintercept = gate_yvar, color = "orange", size = 0.7)
+    if (is.finite(pair_data$gate_yvar)) {
+      density_plot <- density_plot + geom_hline(yintercept = pair_data$gate_yvar, color = "orange", size = 0.7)
     }
     density_plot <- density_plot +
-      geom_text(x = x_range[2] - x_pad, y = y_range[2] - y_pad, label = round(prop_pp, 3), color = "red", size = 4) +
-      geom_text(x = x_range[2] - x_pad, y = y_range[1] + y_pad, label = round(prop_pm, 3), color = "green4", size = 4) +
-      geom_text(x = x_range[1] + x_pad, y = y_range[2] - y_pad, label = round(prop_mp, 3), color = "blue", size = 4) +
-      geom_text(x = x_range[1] + x_pad, y = y_range[1] + y_pad, label = round(prop_mm, 3), color = "black", size = 4)
-
-    dfplot2$bivariate_gate_status <- dplyr::case_when(
-      is_x_pos & is_y_pos ~ "+/+",
-      is_x_pos & !is_y_pos ~ "+/-",
-      !is_x_pos & is_y_pos ~ "-/+",
-      TRUE ~ "-/-"
-    )
+      geom_text(x = pair_data$x_range[2] - pair_data$x_pad, y = pair_data$y_range[2] - pair_data$y_pad, label = round(pair_data$proportions[["pp"]], 3), color = "red", size = 4) +
+      geom_text(x = pair_data$x_range[2] - pair_data$x_pad, y = pair_data$y_range[1] + pair_data$y_pad, label = round(pair_data$proportions[["pm"]], 3), color = "green4", size = 4) +
+      geom_text(x = pair_data$x_range[1] + pair_data$x_pad, y = pair_data$y_range[2] - pair_data$y_pad, label = round(pair_data$proportions[["mp"]], 3), color = "blue", size = 4) +
+      geom_text(x = pair_data$x_range[1] + pair_data$x_pad, y = pair_data$y_range[1] + pair_data$y_pad, label = round(pair_data$proportions[["mm"]], 3), color = "black", size = 4)
 
     overlay_plot2 <- ggplot(dfplot2, aes(x = X_centroid, y = Y_centroid, color = bivariate_gate_status)) +
       geom_point(size = pdf_point_size, alpha = 0.55) +
@@ -2746,47 +2892,11 @@ observeEvent(c(input$xvar, input$yvar), {
       labs(title = "Bivariate Gating", x = "X Centroid", y = "Y Centroid") +
       pdf_theme
 
-    prop_above_cutoff_xvar <- sum(is_x_pos) / nrow(dfplot2)
-    dfplot2$x_status <- ifelse(is_x_pos, "Positive", "Negative")
-    contour_plot_xvar <- ggplot(dfplot2, aes(x = X_centroid, y = Y_centroid, color = x_status)) +
-      geom_point(size = pdf_point_size, alpha = 0.35) +
-      scale_color_manual(
-        guide = guide_legend(title = "", override.aes = list(size = 4.5, alpha = 1)),
-        values = c("Positive" = "green4", "Negative" = "grey70")
-      ) +
-      labs(title = paste0(xvar, "+ cells = ", round(prop_above_cutoff_xvar, 3)), x = "X Centroid", y = "Y Centroid") +
-      pdf_theme
-    x_pos_subset <- dfplot2[is_x_pos, , drop = FALSE]
-    if (nrow(x_pos_subset) >= 2 &&
-        length(unique(x_pos_subset$X_centroid)) >= 2 &&
-        length(unique(x_pos_subset$Y_centroid)) >= 2) {
-      contour_plot_xvar <- contour_plot_xvar +
-        geom_density_2d(data = x_pos_subset, aes(x = X_centroid, y = Y_centroid), inherit.aes = FALSE, color = "black", size = 0.35)
-    }
-
-    prop_above_cutoff_yvar <- sum(is_y_pos) / nrow(dfplot2)
-    dfplot2$y_status <- ifelse(is_y_pos, "Positive", "Negative")
-    contour_plot_yvar <- ggplot(dfplot2, aes(x = X_centroid, y = Y_centroid, color = y_status)) +
-      geom_point(size = pdf_point_size, alpha = 0.35) +
-      scale_color_manual(
-        guide = guide_legend(title = "", override.aes = list(size = 4.5, alpha = 1)),
-        values = c("Positive" = "blue", "Negative" = "grey70")
-      ) +
-      labs(title = paste0(yvar, "+ cells = ", round(prop_above_cutoff_yvar, 3)), x = "X Centroid", y = "Y Centroid") +
-      pdf_theme
-    y_pos_subset <- dfplot2[is_y_pos, , drop = FALSE]
-    if (nrow(y_pos_subset) >= 2 &&
-        length(unique(y_pos_subset$X_centroid)) >= 2 &&
-        length(unique(y_pos_subset$Y_centroid)) >= 2) {
-      contour_plot_yvar <- contour_plot_yvar +
-        geom_density_2d(data = y_pos_subset, aes(x = X_centroid, y = Y_centroid), inherit.aes = FALSE, color = "black", size = 0.35)
-    }
-
     gridExtra::arrangeGrob(
       density_plot,
       overlay_plot2,
-      contour_plot_xvar,
-      contour_plot_yvar,
+      get_bivariate_marker_pdf_panel(marker_panels, xvar, "x", pair_data, pdf_theme, pdf_point_size),
+      get_bivariate_marker_pdf_panel(marker_panels, yvar, "y", pair_data, pdf_theme, pdf_point_size),
       ncol = 2,
       top = grid::textGrob(
         paste0("Bivariate: ", xvar, " vs ", yvar),
@@ -2808,16 +2918,30 @@ observeEvent(c(input$xvar, input$yvar), {
       return(invisible(pdf_file_name))
     }
 
+    markers <- unique(unlist(marker_pairs, use.names = FALSE))
+    patient_data <- prepare_bivariate_patient_data(data, patient_id, markers)
+    gate_values <- precompute_bivariate_gates(patient_data, patient_id, markers, gate_overrides)
+    marker_panels <- precompute_bivariate_marker_pdf_panels(
+      patient_data,
+      markers,
+      gate_values,
+      bivariate_pdf_theme()
+    )
+
     first_page <- TRUE
     for (pair in marker_pairs) {
       page_grob <- tryCatch(
         generate_bivariate_plot_grob(
-          data = data,
-          patient_id = patient_id,
-          xvar = pair[[1]],
-          yvar = pair[[2]],
-          gate_x_override = gate_overrides[[pair[[1]]]],
-          gate_y_override = gate_overrides[[pair[[2]]]]
+          prepare_bivariate_pair_data(
+            patient_data = patient_data,
+            patient_id = patient_id,
+            xvar = pair[[1]],
+            yvar = pair[[2]],
+            gate_values = gate_values,
+            gate_x_override = gate_overrides[[pair[[1]]]],
+            gate_y_override = gate_overrides[[pair[[2]]]]
+          ),
+          marker_panels = marker_panels
         ),
         error = function(e) {
           make_pdf_message_grob(
@@ -2837,6 +2961,13 @@ observeEvent(c(input$xvar, input$yvar), {
     invisible(pdf_file_name)
   }
 
+  generate_current_bivariate_pdf <- function(pair_data, pdf_file_name) {
+    pdf(pdf_file_name, width = 10, height = 10, onefile = TRUE)
+    on.exit(dev.off(), add = TRUE)
+    grid::grid.draw(generate_bivariate_plot_grob(pair_data))
+    invisible(pdf_file_name)
+  }
+
   output$download_bivariate_current <- downloadHandler(
     filename = function() { "current_bivariate_plot.pdf" },
     contentType = "application/pdf",
@@ -2847,33 +2978,7 @@ observeEvent(c(input$xvar, input$yvar), {
           return(write_message_pdf(file, "No bivariate plot", "Upload data and run Randkluft before downloading the current bivariate plot."))
         }
 
-        xvar <- input$xvar
-        yvar <- input$yvar
-        if (is.null(xvar) || is.null(yvar) || !all(c(xvar, yvar) %in% names(data))) {
-          return(write_message_pdf(file, "No bivariate plot", "Select valid X and Y markers before downloading the current bivariate plot."))
-        }
-
-        if (!"imageid" %in% names(data)) {
-          data$imageid <- "sample"
-        }
-
-        patient_ids <- unique_patients_gating()
-        patient_ids <- patient_ids[patient_ids %in% unique(data$imageid)]
-        if (length(patient_ids) == 0) {
-          patient_ids <- unique(data$imageid)
-        }
-
-        gate_overrides <- list()
-        if (!is.null(react_xgate())) gate_overrides[[xvar]] <- react_xgate()
-        if (!is.null(react_ygate())) gate_overrides[[yvar]] <- react_ygate()
-
-        generate_bivariate_pdf(
-          data = data[data$imageid == patient_ids[1], , drop = FALSE],
-          pdf_file_name = file,
-          marker_pairs = list(c(xvar, yvar)),
-          patient_id = patient_ids[1],
-          gate_overrides = gate_overrides
-        )
+        generate_current_bivariate_pdf(current_bivariate_pair_data(), file)
       }, error = function(e) {
         write_message_pdf(file, "Could not generate current bivariate plot", conditionMessage(e))
       })
@@ -2923,198 +3028,131 @@ observeEvent(c(input$xvar, input$yvar), {
     }
   )
 
+  current_bivariate_pair_data <- reactive({
+    data <- subsetted()
+    patient_id <- unique_patients_gating()[1]
+    xvar <- selected_var_name(input$xvar)
+    yvar <- selected_var_name(input$yvar)
+
+    req(patient_id, !is.null(xvar), !is.null(yvar))
+    markers <- unique(c(xvar, yvar))
+    patient_data <- prepare_bivariate_patient_data(data, patient_id, markers)
+
+    gate_overrides <- list()
+    if (!is.null(react_xgate())) gate_overrides[[xvar]] <- react_xgate()
+    if (!is.null(react_ygate())) gate_overrides[[yvar]] <- react_ygate()
+    gate_values <- precompute_bivariate_gates(patient_data, patient_id, markers, gate_overrides)
+
+    prepare_bivariate_pair_data(
+      patient_data = patient_data,
+      patient_id = patient_id,
+      xvar = xvar,
+      yvar = yvar,
+      gate_values = gate_values,
+      gate_x_override = react_xgate(),
+      gate_y_override = react_ygate()
+    )
+  })
+
+  bivariate_app_spatial_theme <- function() {
+    theme(
+      plot.title = element_text(face = "bold", hjust = 0.5, size = 18, family = "Arial"),
+      axis.title = element_text(size = 16, family = "Arial"),
+      axis.text = element_text(size = 14, family = "Arial"),
+      legend.position = "bottom",
+      legend.text = element_text(size = 16, family = "Arial"),
+      legend.title = element_text(size = 16, face = "bold", family = "Arial"),
+      legend.key.size = grid::unit(1.2, "cm"),
+      legend.key.width = grid::unit(1.4, "cm"),
+      legend.key.height = grid::unit(0.9, "cm"),
+      legend.spacing.x = grid::unit(0.35, "cm"),
+      panel.background = element_rect(fill = "white"),
+      plot.background = element_rect(fill = "white")
+    )
+  }
+
+  make_bivariate_app_marker_plot <- function(pair_data, axis, positive_color) {
+    dfplot2 <- pair_data$data
+    marker <- if (axis == "x") pair_data$xvar else pair_data$yvar
+    status_column <- paste0(axis, "_status")
+    positive_rows <- pair_data[[paste0(axis, "_positive")]]
+    prop_positive <- sum(positive_rows) / nrow(dfplot2)
+
+    marker_plot <- ggplot(dfplot2, aes(x = X_centroid, y = Y_centroid, color = .data[[status_column]])) +
+      geom_point(size = 0.3, alpha = 0.35) +
+      scale_color_manual(
+        guide = guide_legend(title = "", override.aes = list(size = 7, alpha = 1)),
+        values = c("Positive" = positive_color, "Negative" = "grey")
+      ) +
+      labs(title = paste(marker, "+ cell=", round(prop_positive, 3), sep = ""), x = "X Centroid", y = "Y Centroid") +
+      bivariate_app_spatial_theme()
+
+    pos_subset <- dfplot2[positive_rows, , drop = FALSE]
+    if (nrow(pos_subset) >= 2 &&
+        length(unique(pos_subset$X_centroid)) >= 2 &&
+        length(unique(pos_subset$Y_centroid)) >= 2) {
+      marker_plot <- marker_plot +
+        geom_density_2d(data = pos_subset, aes(x = X_centroid, y = Y_centroid), inherit.aes = FALSE, color = "black")
+    }
+    marker_plot
+  }
+
+  make_bivariate_app_grob <- function(pair_data) {
+    dfplot2 <- pair_data$data
+    xvar <- pair_data$xvar
+    yvar <- pair_data$yvar
+
+    density_plot <- ggplot(dfplot2, aes(x = .data[[xvar]], y = .data[[yvar]])) +
+      geom_point(aes(color = bivariate_density), size = 0.3, alpha = 0.35) +
+      scale_color_viridis(option = "turbo") +
+      theme(
+        legend.position = "none",
+        plot.title = element_text(face = "bold", hjust = 0.5, size = 18, family = "Arial"),
+        axis.title = element_text(size = 16, family = "Arial"),
+        axis.text = element_text(size = 14, family = "Arial"),
+        panel.background = element_rect(fill = "#f8f8f8"),
+        plot.background = element_rect(fill = "#f8f8f8")
+      ) +
+      labs(title = "Bivariate Density")
+    if (is.finite(pair_data$gate_xvar)) {
+      density_plot <- density_plot + geom_vline(xintercept = pair_data$gate_xvar, color = "orange")
+    }
+    if (is.finite(pair_data$gate_yvar)) {
+      density_plot <- density_plot + geom_hline(yintercept = pair_data$gate_yvar, color = "orange")
+    }
+    density_plot <- density_plot +
+      geom_text(x = pair_data$x_range[2] - pair_data$x_pad, y = pair_data$y_range[2] - pair_data$y_pad, label = round(pair_data$proportions[["pp"]], 3), color = "red", size = 6) +
+      geom_text(x = pair_data$x_range[2] - pair_data$x_pad, y = pair_data$y_range[1] + pair_data$y_pad, label = round(pair_data$proportions[["pm"]], 3), color = "green", size = 6) +
+      geom_text(x = pair_data$x_range[1] + pair_data$x_pad, y = pair_data$y_range[2] - pair_data$y_pad, label = round(pair_data$proportions[["mp"]], 3), color = "blue", size = 6) +
+      geom_text(x = pair_data$x_range[1] + pair_data$x_pad, y = pair_data$y_range[1] + pair_data$y_pad, label = round(pair_data$proportions[["mm"]], 3), color = "black", size = 6)
+
+    overlay_plot2 <- ggplot(dfplot2, aes(x = X_centroid, y = Y_centroid, color = bivariate_gate_status)) +
+      geom_point(size = 0.3, alpha = 0.7) +
+      scale_color_manual(
+        guide = guide_legend(title = "", override.aes = list(size = 7, alpha = 1)),
+        values = c("+/+" = "red", "-/-" = "grey", "+/-" = "green", "-/+" = "blue", "Other" = "black")
+      ) +
+      labs(title = "Bivariate Gating", x = "X Centroid", y = "Y Centroid") +
+      bivariate_app_spatial_theme()
+
+    gridExtra::arrangeGrob(
+      density_plot,
+      overlay_plot2,
+      make_bivariate_app_marker_plot(pair_data, "x", "green"),
+      make_bivariate_app_marker_plot(pair_data, "y", "blue"),
+      ncol = 2
+    )
+  }
+
   output$plot2 <- renderPlot({
-      generatePlotBivar()
-    })
+    pair_data <- current_bivariate_pair_data()
+    validate(need(is.null(pair_data$error), pair_data$error))
+    grid::grid.draw(make_bivariate_app_grob(pair_data))
+  })
 
-
-      output$plot_trivariate <- renderPlotly({
-      generatePlotTrivar()
-    })
-
-
-      generatePlotBivar <- function() {
-
-    output$plot2 <- renderPlot({
-        dfplot2 <- subsetted()
-
-        print(colnames(dfplot2))
-
-        patient_selected <- unique_patients_gating()[1]
-
-        xvar <- input$xvar
-        yvar <- input$yvar
-
-        print(patient_selected)
-        print(xvar)
-        print(yvar)
-
-        print(resultdf_reactive())
-
-        print(resultdf_reactive()$Marker == xvar)
-        print(resultdf_reactive()$Patient == patient_selected)
-
-        gate_xvar <- resultdf_reactive()$Gate[
-            resultdf_reactive()$Marker == xvar &
-            resultdf_reactive()$Patient == patient_selected
-        ]
-
-        gate_yvar <- resultdf_reactive()$Gate[
-            resultdf_reactive()$Marker == yvar &
-            resultdf_reactive()$Patient == patient_selected
-        ]
-
-        if (!is.null(react_xgate())) {
-            gate_xvar <- react_xgate()
-            if (xvar == yvar) {
-                gate_yvar <- gate_xvar
-            }
-        }
-
-        if (!is.null(react_ygate())) {
-            gate_yvar <- react_ygate()
-            if (xvar == yvar) {
-                gate_xvar <- gate_yvar
-            }
-        }
-
-        print(gate_xvar)
-        print(gate_yvar)
-
-        num_points <- nrow(dfplot2)
-        num_pp <- sum(dfplot2[[xvar]] > gate_xvar & dfplot2[[yvar]] > gate_yvar)
-        num_pm <- sum(dfplot2[[xvar]] > gate_xvar & dfplot2[[yvar]] <= gate_yvar)
-        num_mp <- sum(dfplot2[[xvar]] <= gate_xvar & dfplot2[[yvar]] > gate_yvar)
-        num_mm <- sum(dfplot2[[xvar]] <= gate_xvar & dfplot2[[yvar]] <= gate_yvar)
-
-        prop_pp <- num_pp / num_points
-        prop_pm <- num_pm / num_points
-        prop_mp <- num_mp / num_points
-        prop_mm <- num_mm / num_points
-
-        complete_rows <- complete.cases(dfplot2[[xvar]], dfplot2[[yvar]])
-        dfplot2 <- dfplot2[complete_rows, ]
-
-        finite_rows <- is.finite(dfplot2[[xvar]]) & is.finite(dfplot2[[yvar]])
-        dfplot2 <- dfplot2[finite_rows, ]
-
-        density_values_bi <- get_density(dfplot2[[xvar]], dfplot2[[yvar]], n = 100)
-
-        p <- ggplot(dfplot2, aes(!!input$xvar,!!input$yvar)) +
-            geom_vline(xintercept = gate_xvar, color = "orange") +
-            geom_hline(yintercept = gate_yvar, color = "orange") +
-            scale_color_viridis(option="turbo") +
-            geom_point(aes(color = density_values_bi), size = 0.3, alpha = 0.35) +
-            theme(
-                legend.position = "none",
-                plot.title = element_text(face = "bold", hjust = 0.5, size = 18, family = "Arial"),
-                axis.title = element_text(size = 16, family = "Arial"),
-                axis.text = element_text(size = 14, family = "Arial"),
-                panel.background = element_rect(fill = "#f8f8f8"),  # very pale grey for the plotting area
-                plot.background = element_rect(fill = "#f8f8f8")
-            ) +
-            labs(title = "Bivariate Density")
-
-        p <- p +
-            geom_text(x = max(dfplot2[[xvar]])-max(dfplot2[[xvar]])/40, y = max(dfplot2[[yvar]])-max(dfplot2[[yvar]])/40, label = paste(round(prop_pp,3)), color = "red", size = 6) +
-            geom_text(x = max(dfplot2[[xvar]])-max(dfplot2[[xvar]])/40, y = min(dfplot2[[yvar]])+min(dfplot2[[yvar]])/40, label = paste(round(prop_pm,3)), color = "green", size = 6) +
-            geom_text(x = min(dfplot2[[xvar]])+min(dfplot2[[xvar]])/40, y = max(dfplot2[[yvar]])-max(dfplot2[[yvar]])/40, label = paste(round(prop_mp,3)), color = "blue", size = 6) +
-            geom_text(x = min(dfplot2[[xvar]])+min(dfplot2[[xvar]])/40, y = min(dfplot2[[yvar]])+min(dfplot2[[yvar]])/40, label = paste(round(prop_mm,3)), color = "black", size = 6)
-
-        overlay_plot2 <- ggplot(dfplot2, aes(x = X_centroid, y = Y_centroid)) +
-            geom_point(aes(
-                color = case_when(
-                    dfplot2[[xvar]] > gate_xvar & dfplot2[[yvar]] > gate_yvar ~ "+/+",
-                    dfplot2[[xvar]] <= gate_xvar & dfplot2[[yvar]] <= gate_yvar ~ "-/-",
-                    dfplot2[[xvar]] > gate_xvar & dfplot2[[yvar]] <= gate_yvar ~ "+/-",
-                    dfplot2[[xvar]] <= gate_xvar & dfplot2[[yvar]] > gate_yvar ~ "-/+",
-                    TRUE ~ "Other"
-                )
-            ), size = 0.3, alpha = 0.7) +
-            scale_color_manual(
-                guide = guide_legend(title = "", override.aes = list(size = 7, alpha = 1)),
-                values = c(
-                    "+/+" = "red",
-                    "-/-" = "grey",
-                    "+/-" = "green",
-                    "-/+" = "blue",
-                    "Other" = "black"
-                )
-            ) +
-            labs(title = "Bivariate Gating", x = "X Centroid", y = "Y Centroid") +
-            theme(
-                plot.title = element_text(face = "bold", hjust = 0.5, size = 18, family = "Arial"),
-                axis.title = element_text(size = 16, family = "Arial"),
-                axis.text = element_text(size = 14, family = "Arial"),
-                legend.position = "bottom",
-                legend.text = element_text(size = 16, family = "Arial"),
-                legend.title = element_text(size = 16, face = "bold", family = "Arial"),
-                legend.key.size = grid::unit(1.2, "cm"),
-                legend.key.width = grid::unit(1.4, "cm"),
-                legend.key.height = grid::unit(0.9, "cm"),
-                legend.spacing.x = grid::unit(0.35, "cm"),
-                panel.background = element_rect(fill = "white"),  # very pale grey for the plotting area
-                plot.background = element_rect(fill = "white")
-            )
-
-        prop_above_cutoff_xvar <- sum(dfplot2[[xvar]] > gate_xvar) / nrow(dfplot2)
-
-        contour_plot_xvar <- ggplot(dfplot2, aes(x = X_centroid, y = Y_centroid)) +
-            geom_point(aes(color = ifelse(dfplot2[[xvar]] > gate_xvar, "Positive", "Negative")), size = 0.3, alpha = 0.35) +
-            scale_color_manual(
-                guide = guide_legend(title = "", override.aes = list(size = 7, alpha = 1)),
-                values = c("Positive" = "green", "Negative" = "grey")
-            ) +
-            geom_density_2d(data = subset(dfplot2, dfplot2[[xvar]] > gate_xvar), color = 'black') +
-            theme(
-                plot.title = element_text(face = "bold", hjust = 0.5, size = 18, family = "Arial"),
-                axis.title = element_text(size = 16, family = "Arial"),
-                axis.text = element_text(size = 14, family = "Arial"),
-                legend.position = "bottom",
-                legend.text = element_text(size = 16, family = "Arial"),
-                legend.title = element_text(size = 16, face = "bold", family = "Arial"),
-                legend.key.size = grid::unit(1.2, "cm"),
-                legend.key.width = grid::unit(1.4, "cm"),
-                legend.key.height = grid::unit(0.9, "cm"),
-                legend.spacing.x = grid::unit(0.35, "cm"),
-                panel.background = element_rect(fill = "white"),  # very pale grey for the plotting area
-                plot.background = element_rect(fill = "white")
-            ) +
-            labs(title = paste(xvar, "+ cell=", round(prop_above_cutoff_xvar, 3), sep = ""), x = "X Centroid", y = "Y Centroid")
-
-        prop_above_cutoff_yvar <- sum(dfplot2[[yvar]] > gate_yvar) / nrow(dfplot2)
-
-        contour_plot_yvar <- ggplot(dfplot2, aes(x = X_centroid, y = Y_centroid)) +
-            geom_point(aes(color = ifelse(dfplot2[[yvar]] > gate_yvar, "Positive", "Negative")), size = 0.3, alpha = 0.35) +
-            scale_color_manual(
-                guide = guide_legend(title = "", override.aes = list(size = 7, alpha = 1)),
-                values = c("Positive" = "blue", "Negative" = "grey")
-            ) +
-            geom_density_2d(data = subset(dfplot2, dfplot2[[yvar]] > gate_yvar), color = 'black') +
-            theme(
-                plot.title = element_text(face = "bold", hjust = 0.5, size = 18, family = "Arial"),
-                axis.title = element_text(size = 16, family = "Arial"),
-                axis.text = element_text(size = 14, family = "Arial"),
-                legend.position = "bottom",
-                legend.text = element_text(size = 16, family = "Arial"),
-                legend.title = element_text(size = 16, face = "bold", family = "Arial"),
-                legend.key.size = grid::unit(1.2, "cm"),
-                legend.key.width = grid::unit(1.4, "cm"),
-                legend.key.height = grid::unit(0.9, "cm"),
-                legend.spacing.x = grid::unit(0.35, "cm"),
-                panel.background = element_rect(fill = "white"),  # very pale grey for the plotting area
-                plot.background = element_rect(fill = "white")
-            ) +
-            labs(title = paste(yvar, "+ cell=", round(prop_above_cutoff_yvar, 3), sep = ""), x = "X Centroid", y = "Y Centroid")
-
-        arranged_plots <- grid.arrange(p, overlay_plot2, contour_plot_xvar, contour_plot_yvar, ncol = 2)
-
-        # Save the arranged plots with higher resolution
-        ggsave("arranged_plots.png", arranged_plots, dpi = 1000, width = 12, height = 8)
-
-        print(arranged_plots)
-    })
-}
+  output$plot_trivariate <- renderPlotly({
+    generatePlotTrivar()
+  })
 
 
 add_trivariate_gate_plane <- function(plot, axis, gate_value, plot_ranges, marker_label) {
@@ -3260,8 +3298,6 @@ observeEvent(input$update_gates_bivariate, {
     react_ygate(NULL)
   }
   print("After react_ygate update")
-
-  generatePlotBivar()
 })
 
 
