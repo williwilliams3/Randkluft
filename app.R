@@ -1232,6 +1232,46 @@ observeEvent(input$prevMarker, {
   return(dens$z[ii])
 }
 
+get_density_3d <- function(x, y, z, grid_size = 24) {
+  marker_values <- cbind(
+    suppressWarnings(as.numeric(x)),
+    suppressWarnings(as.numeric(y)),
+    suppressWarnings(as.numeric(z))
+  )
+  density_values <- rep(0, nrow(marker_values))
+  finite_rows <- complete.cases(marker_values) & apply(marker_values, 1, function(row) all(is.finite(row)))
+  marker_values <- marker_values[finite_rows, , drop = FALSE]
+
+  if (!requireNamespace("ks", quietly = TRUE) ||
+      nrow(marker_values) < 3 ||
+      any(apply(marker_values, 2, function(values) diff(range(values)) == 0))) {
+    return(density_values)
+  }
+
+  density_grid <- tryCatch(
+    ks::kde(
+      x = marker_values,
+      H = ks::Hns(marker_values),
+      binned = TRUE,
+      bgridsize = rep(grid_size, 3),
+      compute.cont = FALSE
+    ),
+    error = function(e) NULL
+  )
+  if (is.null(density_grid)) {
+    return(density_values)
+  }
+
+  grid_indices <- lapply(seq_len(3), function(axis) {
+    grid_axis <- density_grid$eval.points[[axis]]
+    pmax(1, pmin(length(grid_axis), findInterval(marker_values[, axis], grid_axis)))
+  })
+  density_values[finite_rows] <- density_grid$estimate[
+    cbind(grid_indices[[1]], grid_indices[[2]], grid_indices[[3]])
+  ]
+  density_values
+}
+
 
   # Always register at server level so reactive to outputinterceptreactive()
   # at all times; visibility is controlled by the toggle below.
@@ -1998,17 +2038,40 @@ generate_histogram_pdf <- function(subdata_to_plot, pdf_file_name, markers = NUL
 })
 
 
-   observe({
-    updateSelectInput(session, "xvarTri", choices = unique_markers())
-})
-
+ trivariate_marker_default <- function(markers, current_marker, position) {
+    current_marker <- selected_var_name(current_marker)
+    if (!is.null(current_marker) && current_marker %in% markers) {
+      return(current_marker)
+    }
+    if (length(markers) == 0) {
+      return(character(0))
+    }
+    if (length(markers) < 3) {
+      return(markers[1])
+    }
+    markers[position]
+ }
 
  observe({
-    updateSelectInput(session, "yvarTri", choices = unique_markers())
-})
-
- observe({
-    updateSelectInput(session, "zvar", choices = unique_markers())
+    markers <- unique_markers()
+    updateSelectInput(
+      session,
+      "xvarTri",
+      choices = markers,
+      selected = trivariate_marker_default(markers, input$xvarTri, 1)
+    )
+    updateSelectInput(
+      session,
+      "yvarTri",
+      choices = markers,
+      selected = trivariate_marker_default(markers, input$yvarTri, 2)
+    )
+    updateSelectInput(
+      session,
+      "zvar",
+      choices = markers,
+      selected = trivariate_marker_default(markers, input$zvar, 3)
+    )
 })
 
 
@@ -3054,69 +3117,130 @@ observeEvent(c(input$xvar, input$yvar), {
 }
 
 
+add_trivariate_gate_plane <- function(plot, axis, gate_value, plot_ranges, marker_label) {
+  if (!is.finite(gate_value)) {
+    return(plot)
+  }
+
+  plane <- switch(
+    axis,
+    x = list(
+      x = rep(gate_value, 4),
+      y = c(plot_ranges$y[1], plot_ranges$y[2], plot_ranges$y[2], plot_ranges$y[1]),
+      z = c(plot_ranges$z[1], plot_ranges$z[1], plot_ranges$z[2], plot_ranges$z[2])
+    ),
+    y = list(
+      x = c(plot_ranges$x[1], plot_ranges$x[2], plot_ranges$x[2], plot_ranges$x[1]),
+      y = rep(gate_value, 4),
+      z = c(plot_ranges$z[1], plot_ranges$z[1], plot_ranges$z[2], plot_ranges$z[2])
+    ),
+    z = list(
+      x = c(plot_ranges$x[1], plot_ranges$x[2], plot_ranges$x[2], plot_ranges$x[1]),
+      y = c(plot_ranges$y[1], plot_ranges$y[1], plot_ranges$y[2], plot_ranges$y[2]),
+      z = rep(gate_value, 4)
+    )
+  )
+
+  plotly::add_trace(
+    plot,
+    x = plane$x,
+    y = plane$y,
+    z = plane$z,
+    i = c(0, 0),
+    j = c(1, 2),
+    k = c(2, 3),
+    type = "mesh3d",
+    # facecolor = rep("#FFA500", 2),
+    color = "orange",
+    opacity = 0.06,
+    inherit = FALSE,
+    showlegend = TRUE,
+    showscale = FALSE,
+    name = paste(marker_label, "gate"),
+    hoverinfo = "text",
+    text = rep(paste(marker_label, "gate =", round(gate_value, 3)), 4)
+  )
+}
+
 generatePlotTrivar <- function() {
-
-    output$plot_trivariate <- renderPlotly({
-
-
-    dfplot2 <- subsetted_tri()
-
-
+  dfplot2 <- subsetted_tri()
   patient_selected <- unique_patients_gating()[1]
+  xvar <- selected_var_name(input$xvarTri)
+  yvar <- selected_var_name(input$yvarTri)
+  zvar <- selected_var_name(input$zvar)
 
-    xvar <- input$xvarTri
-    yvar <- input$yvarTri
-    zvar <- input$zvar
+  req(!is.null(xvar), !is.null(yvar), !is.null(zvar))
+  validate(need(
+    all(c(xvar, yvar, zvar) %in% names(dfplot2)),
+    "Select three available markers for the trivariate plot."
+  ))
 
+  dfplot2[[xvar]] <- suppressWarnings(as.numeric(dfplot2[[xvar]]))
+  dfplot2[[yvar]] <- suppressWarnings(as.numeric(dfplot2[[yvar]]))
+  dfplot2[[zvar]] <- suppressWarnings(as.numeric(dfplot2[[zvar]]))
+  finite_rows <- complete.cases(dfplot2[[xvar]], dfplot2[[yvar]], dfplot2[[zvar]]) &
+    is.finite(dfplot2[[xvar]]) &
+    is.finite(dfplot2[[yvar]]) &
+    is.finite(dfplot2[[zvar]])
+  dfplot2 <- dfplot2[finite_rows, , drop = FALSE]
+  validate(need(nrow(dfplot2) > 0, "No finite marker values are available for the trivariate plot."))
 
-    gate_xvar <- resultdf_reactive()$Gate[
-    resultdf_reactive()$Marker == xvar &
-    resultdf_reactive()$Patient == patient_selected
-  ]
+  dfplot2$trivariate_density <- get_density_3d(
+    dfplot2[[xvar]],
+    dfplot2[[yvar]],
+    dfplot2[[zvar]],
+    grid_size = 50
+  )
 
-  gate_yvar <- resultdf_reactive()$Gate[
-    resultdf_reactive()$Marker == yvar &
-    resultdf_reactive()$Patient == patient_selected
-  ]
+  gate_values <- c(
+    x = resolve_gate_value(patient_selected, xvar, dfplot2),
+    y = resolve_gate_value(patient_selected, yvar, dfplot2),
+    z = resolve_gate_value(patient_selected, zvar, dfplot2)
+  )
+  plot_ranges <- list(
+    x = range(dfplot2[[xvar]], na.rm = TRUE),
+    y = range(dfplot2[[yvar]], na.rm = TRUE),
+    z = range(dfplot2[[zvar]], na.rm = TRUE)
+  )
+  trivariate_density_range <- range(dfplot2$trivariate_density, finite = TRUE)
+  if (!all(is.finite(trivariate_density_range)) || diff(trivariate_density_range) == 0) {
+    trivariate_density_range <- c(0, 1)
+  }
+  trivariate_colors <- plotly::toRGB(viridisLite::viridis(256, option = "turbo"))
+  trivariate_colorscale <- cbind(
+    seq(0, 1, length.out = length(trivariate_colors)),
+    trivariate_colors
+  )
 
-  gate_zvar <- resultdf_reactive()$Gate[
-    resultdf_reactive()$Marker == zvar &
-    resultdf_reactive()$Patient == patient_selected
-  ]
-
-    print(gate_xvar)
-    print(gate_yvar)
-
-    print(xvar)
-    print(yvar)
-    print(zvar)
-
-        axx <- list(
-      title = paste(xvar)
+  p <- plot_ly(
+    dfplot2,
+    x = ~dfplot2[[xvar]],
+    y = ~dfplot2[[yvar]],
+    z = ~dfplot2[[zvar]],
+    type = "scatter3d",
+    mode = "markers",
+    showlegend = FALSE,
+    marker = list(
+      size = 2,
+      # alpha=0.9,
+      color = dfplot2$trivariate_density,
+      colorscale = trivariate_colorscale,
+      cmin = trivariate_density_range[1],
+      cmax = trivariate_density_range[2],
+      showscale = FALSE
     )
-
-    axy <- list(
-      title = paste(yvar)
-    )
-
-    axz <- list(
-      title = paste(zvar)
-    )
-
-
-     p <- plot_ly(dfplot2, x = ~dfplot2[[xvar]], y = ~dfplot2[[yvar]], z = ~dfplot2[[zvar]], type = "scatter3d") %>%
-    layout(scene = list(
-      xaxis = axx,
-      yaxis = axy,
-      zaxis = axz)
+  ) %>%
+    layout(
+      scene = list(
+        xaxis = list(title = paste(xvar)),
+        yaxis = list(title = paste(yvar)),
+        zaxis = list(title = paste(zvar))
       )
+    )
 
-
-p
-
-
-  })
-
+  p <- add_trivariate_gate_plane(p, "x", gate_values[["x"]], plot_ranges, xvar)
+  p <- add_trivariate_gate_plane(p, "y", gate_values[["y"]], plot_ranges, yvar)
+  add_trivariate_gate_plane(p, "z", gate_values[["z"]], plot_ranges, zvar)
 }
 
 
